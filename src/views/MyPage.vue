@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>My Page</h1>
+    <h1 v-for="n in 100" :key="n">My Page {{ n }}</h1>
     <p>This is My Page component!</p>
   </div>
 </template>
