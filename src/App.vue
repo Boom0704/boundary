@@ -44,13 +44,14 @@ body {
 
 .main-content {
   flex-grow: 1;
+  margin-top: 0%;
   margin-left: 250px; /* 사이드바의 너비만큼 마진을 설정 */
   overflow-y: auto; /* 세로 스크롤을 허용 */
-  padding: 20px;
+  // padding: 20px;
   height: 100vh; /* 화면 높이에 맞춰서 스크롤 허용 */
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
   .nav-sidebar {
     width: 80px;
   }
@@ -60,7 +61,7 @@ body {
   }
 }
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .app-container {
     flex-direction: column;
   }
@@ -74,7 +75,7 @@ body {
 
   .main-content {
     margin-left: 0; /* 사이드바가 상단에 있을 때 좌측 마진 제거 */
-    margin-top: 60px; /* 사이드바가 상단에 있을 때 위쪽 마진 추가 */
+    // margin-top: 60px; /* 사이드바가 상단에 있을 때 위쪽 마진 추가 */
     height: calc(
       100vh - 60px
     ); /* 메인 콘텐츠가 사이드바를 고려해 높이를 조정 */

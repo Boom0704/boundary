@@ -22,17 +22,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted } from "vue";
+import { ROUTES } from "@/utils/constants"; // ROUTES 상수 임포트
+import { BREAKPOINT_MOBILE, BREAKPOINT_TABLET } from "@/utils/breakpoints"; // 임계값 임포트
 import {
   HomeIcon,
   InformationCircleIcon,
   UserIcon,
 } from "@heroicons/vue/24/outline";
-
-interface Route {
-  path: string;
-  name: string;
-  icon: any;
-}
 
 export default defineComponent({
   name: "NavigationSide",
@@ -45,17 +41,21 @@ export default defineComponent({
     const isTablet = ref(false);
     const isMobile = ref(false);
 
-    const routes: Route[] = [
-      { path: "/", name: "Home", icon: HomeIcon },
-      { path: "/about", name: "About", icon: InformationCircleIcon },
-      { path: "/mypage", name: "My Page", icon: UserIcon },
+    const routes = [
+      { path: ROUTES.HOME.path, name: ROUTES.HOME.name, icon: HomeIcon },
+      {
+        path: ROUTES.ABOUT.path,
+        name: ROUTES.ABOUT.name,
+        icon: InformationCircleIcon,
+      },
+      { path: ROUTES.MYPAGE.path, name: ROUTES.MYPAGE.name, icon: UserIcon },
     ];
 
     const checkScreenSize = () => {
-      if (window.innerWidth <= 640) {
+      if (window.innerWidth <= BREAKPOINT_MOBILE) {
         isMobile.value = true;
         isTablet.value = false;
-      } else if (window.innerWidth <= 1023) {
+      } else if (window.innerWidth <= BREAKPOINT_TABLET) {
         isMobile.value = false;
         isTablet.value = true;
       } else {
@@ -82,10 +82,13 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$breakpoint-mobile: 640px;
+$breakpoint-tablet: 1024px;
+
 .sidebar {
   height: 100%;
-  background-color: #f8f9fa;
+  background-color: #e7efe7;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -99,14 +102,14 @@ export default defineComponent({
 }
 
 .logo {
-  width: 40px;
-  height: 40px;
-  margin-right: 10px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
 }
 
 .title {
-  font-size: 24px;
+  font-size: 35px;
+  margin-left: 10px;
   font-weight: bold;
   color: #2c3e50;
 }
@@ -123,11 +126,12 @@ export default defineComponent({
   color: #2c3e50;
   text-decoration: none;
   font-weight: bold;
+  font-size: 25px;
 }
 
 .icon {
-  width: 24px;
-  height: 24px;
+  width: 35px;
+  height: 35px;
   margin-right: 10px;
 }
 
@@ -159,7 +163,7 @@ export default defineComponent({
 
 .mobile {
   width: 100%;
-  height: 60px;
+  height: 80px;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
@@ -170,7 +174,7 @@ export default defineComponent({
   margin-bottom: 0;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: $breakpoint-tablet) {
   .sidebar {
     width: 70px;
     padding: 20px 10px;
@@ -194,9 +198,9 @@ export default defineComponent({
   }
 }
 
-@media (max-width: 639px) {
+@media (max-width: $breakpoint-mobile) {
   .sidebar {
-    height: 60px;
+    height: 80px;
     width: 100%;
     flex-direction: row;
     justify-content: flex-start;
@@ -206,6 +210,10 @@ export default defineComponent({
 
   .logo-container {
     margin-bottom: 0;
+  }
+
+  .nav-link {
+    padding: 10px;
   }
 }
 </style>
