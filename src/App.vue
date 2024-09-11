@@ -36,7 +36,7 @@ body {
 
 .nav-sidebar {
   flex-shrink: 0;
-  width: 250px;
+  width: 240px;
   background-color: #f4f4f4;
   height: 100vh; /* 사이드바를 고정하고, 화면 높이에 맞춤 */
   position: relative; /* 사이드바가 고정되지만, 메인 콘텐츠와 겹치지 않게 처리 */
@@ -45,7 +45,7 @@ body {
 .main-content {
   flex-grow: 1;
   margin-top: 0%;
-  margin-left: 250px; /* 사이드바의 너비만큼 마진을 설정 */
+  margin-left: 200px; /* 사이드바의 너비만큼 마진을 설정 */
   overflow-y: auto; /* 세로 스크롤을 허용 */
   // padding: 20px;
   height: 100vh; /* 화면 높이에 맞춰서 스크롤 허용 */
@@ -75,7 +75,7 @@ body {
 
   .main-content {
     margin-left: 0; /* 사이드바가 상단에 있을 때 좌측 마진 제거 */
-    // margin-top: 60px; /* 사이드바가 상단에 있을 때 위쪽 마진 추가 */
+    margin-top: 10px; /* 사이드바가 상단에 있을 때 위쪽 마진 추가 */
     height: calc(
       100vh - 60px
     ); /* 메인 콘텐츠가 사이드바를 고려해 높이를 조정 */

@@ -28,6 +28,7 @@ import {
   HomeIcon,
   InformationCircleIcon,
   UserIcon,
+  PlusCircleIcon,
 } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
@@ -36,6 +37,7 @@ export default defineComponent({
     HomeIcon,
     InformationCircleIcon,
     UserIcon,
+    PlusCircleIcon,
   },
   setup() {
     const isTablet = ref(false);
@@ -47,6 +49,11 @@ export default defineComponent({
         path: ROUTES.ABOUT.path,
         name: ROUTES.ABOUT.name,
         icon: InformationCircleIcon,
+      },
+      {
+        path: ROUTES.ADDPICTURE.path,
+        name: ROUTES.ADDPICTURE.name,
+        icon: PlusCircleIcon,
       },
       { path: ROUTES.MYPAGE.path, name: ROUTES.MYPAGE.name, icon: UserIcon },
     ];
