@@ -16,4 +16,8 @@ export const ROUTES = {
     name: "addPicture",
     path: "/add",
   },
+  PROFILE: {
+    name: "profile",
+    path: "/profile/:id",
+  },
 };
