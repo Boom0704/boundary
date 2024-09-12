@@ -116,7 +116,19 @@ const postByUser2: IPost = {
 };
 
 // 각각의 포스트를 유저의 게시글로 할당
-user1.posts = [postByUser1];
+user1.posts = [
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+  postByUser1,
+];
 user2.posts = [postByUser2];
 
 // 더미 데이터를 export

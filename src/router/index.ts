@@ -27,6 +27,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "AddPicture" */ "../views/AddPicture.vue"),
   },
+  {
+    path: ROUTES.PROFILE.path,
+    name: ROUTES.PROFILE.name,
+    component: () =>
+      import(/* webpackChunkName: "ProfileView" */ "../views/ProfileView.vue"), // ProfileView.vue 파일을 동적으로 로드
+  },
 ];
 
 const router = createRouter({
