@@ -1,20 +1,32 @@
 <template>
   <div id="app" class="app-container">
-    <NavigationSide class="nav-sidebar" />
-    <main class="main-content">
+    <!-- 현재 라우트가 LoginView가 아닐 때만 사이드바 표시 -->
+    <NavigationSide v-if="!isLoginPage" class="nav-sidebar" />
+    <main class="main-content" :class="{ 'no-sidebar': isLoginPage }">
       <router-view />
     </main>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
+import { useRoute } from "vue-router"; // vue-router의 useRoute 사용
 import NavigationSide from "./components/NavigationSide.vue";
 
 export default defineComponent({
   name: "App",
   components: {
     NavigationSide,
+  },
+  setup() {
+    const route = useRoute();
+
+    // 현재 라우트가 LoginView이면 사이드바를 숨김
+    const isLoginPage = computed(() => route.name === "login");
+
+    return {
+      isLoginPage,
+    };
   },
 });
 </script>
@@ -45,10 +57,13 @@ body {
 .main-content {
   flex-grow: 1;
   margin-top: 0%;
-  margin-left: 200px; /* 사이드바의 너비만큼 마진을 설정 */
+  margin-left: 240px; /* 사이드바의 너비만큼 마진을 설정 */
   overflow-y: auto; /* 세로 스크롤을 허용 */
-  // padding: 20px;
   height: 100vh; /* 화면 높이에 맞춰서 스크롤 허용 */
+}
+
+.main-content.no-sidebar {
+  margin-left: 0; /* 사이드바 없는 경우 마진을 0으로 설정 */
 }
 
 @media (max-width: 1024px) {
@@ -58,6 +73,10 @@ body {
 
   .main-content {
     margin-left: 80px; /* 사이드바가 80px로 줄어들면 메인 컨텐츠도 조정 */
+  }
+
+  .main-content.no-sidebar {
+    margin-left: 0;
   }
 }
 

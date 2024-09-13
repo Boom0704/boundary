@@ -20,4 +20,8 @@ export const ROUTES = {
     name: "profile",
     path: "/profile/:id",
   },
+  LOGIN: {
+    name: "login",
+    path: "/login",
+  },
 };
