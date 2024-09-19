@@ -82,7 +82,7 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  setup(props: { close: () => void }) {
     const lastName = ref("");
     const firstName = ref("");
     const contactInfo = ref("");
