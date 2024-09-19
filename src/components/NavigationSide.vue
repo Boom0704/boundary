@@ -51,8 +51,8 @@ export default defineComponent({
         icon: InformationCircleIcon,
       },
       {
-        path: ROUTES.ADDPICTURE.path,
-        name: ROUTES.ADDPICTURE.name,
+        path: ROUTES.ADDPAGE.path,
+        name: ROUTES.ADDPAGE.name,
         icon: PlusCircleIcon,
       },
       { path: ROUTES.MYPAGE.path, name: ROUTES.MYPAGE.name, icon: UserIcon },

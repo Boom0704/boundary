@@ -12,8 +12,8 @@ export const ROUTES = {
     name: "myPage",
     path: "/mypage",
   },
-  ADDPICTURE: {
-    name: "addPicture",
+  ADDPAGE: {
+    name: "addPage",
     path: "/add",
   },
   PROFILE: {
