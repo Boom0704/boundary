@@ -22,10 +22,10 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "myPage" */ "../views/MyPage.vue"),
   },
   {
-    path: ROUTES.ADDPICTURE.path,
-    name: ROUTES.ADDPICTURE.name,
+    path: ROUTES.ADDPAGE.path,
+    name: ROUTES.ADDPAGE.name,
     component: () =>
-      import(/* webpackChunkName: "AddPicture" */ "../views/AddPicture.vue"),
+      import(/* webpackChunkName: "AddPage" */ "../views/AddPage.vue"),
   },
   {
     path: ROUTES.PROFILE.path,
