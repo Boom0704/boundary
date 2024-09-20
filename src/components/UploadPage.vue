@@ -23,7 +23,7 @@ export default {
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // Vuex의 photos 상태를 비움
-      store.commit("clearPhotos");
+      store.commit("clearDatas");
 
       // 업로드가 완료되면 홈으로 리디렉션
       router.push({ name: "home" });

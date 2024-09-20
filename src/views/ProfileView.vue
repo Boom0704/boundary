@@ -6,15 +6,14 @@
         <img :src="user.profilePictureUrl" alt="Profile Picture" />
       </div>
       <div class="user-info">
-        <h2>{{ user.username }}</h2>
+        <h2>{{ user.username }} ({{ user.age }}세)</h2>
         <p class="bio">{{ user.bio }}</p>
-        <!-- bio 적용 -->
+        <!-- 프로필 공개 상태 표시 -->
+        <p class="visibility">Profile visibility: {{ visibilityLabel }}</p>
         <div class="tags">
-          <span v-for="tag in tags" :key="tag" class="tag">{{ tag }}</span>
-        </div>
-        <div class="icon-buttons">
-          <!-- 아이콘 버튼들 추가 (예시로 하나만 추가) -->
-          <button class="icon-btn">버튼</button>
+          <span v-for="tag in user.hashtags" :key="tag.tag" class="tag"
+            >{{ tag.tag }} {{ tag.count }}</span
+          >
         </div>
       </div>
     </div>
@@ -32,19 +31,19 @@
           @click="currentView = 'posts'"
           :class="{ active: currentView === 'posts' }"
         >
-          게시글
+          Posts
         </button>
         <button
           @click="currentView = 'followers'"
           :class="{ active: currentView === 'followers' }"
         >
-          팔로워
+          Followers
         </button>
         <button
           @click="currentView = 'following'"
           :class="{ active: currentView === 'following' }"
         >
-          팔로잉
+          Following
         </button>
       </div>
 
@@ -75,7 +74,7 @@
           :key="follower.id"
           class="grid-item"
         >
-          <img :src="follower.profilePictureUrl" alt="Post Image" />
+          <img :src="follower.profilePictureUrl" alt="Follower Profile" />
         </div>
       </div>
 
@@ -89,7 +88,7 @@
           :key="following.id"
           class="grid-item"
         >
-          <img :src="following.profilePictureUrl" alt="Post Image" />
+          <img :src="following.profilePictureUrl" alt="Following Profile" />
         </div>
       </div>
     </div>
@@ -99,12 +98,12 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import { user1 } from "@/data/dubbyModel";
+import { ProfileVisibility } from "@/interface/IModels"; // 프로필 공개도 가져오기
 
 export default defineComponent({
   name: "ProfileView",
   setup() {
     const user = ref(user1);
-    const tags = ref(["태그1", "태그2", "태그3"]);
     const gridCount = ref(1);
     const maxGridCount = ref(4);
     const currentView = ref("posts");
@@ -115,13 +114,18 @@ export default defineComponent({
       return 66.66;
     });
 
+    // 프로필 공개 상태 영어 그대로 반환
+    const visibilityLabel = computed(() => {
+      return user.value.visibility;
+    });
+
     return {
       user,
-      tags,
       gridCount,
       maxGridCount,
       currentView,
       currentViewPosition,
+      visibilityLabel,
     };
   },
 });
@@ -183,10 +187,9 @@ $breakpoint-tablet: 1024px;
 }
 
 .tags {
-  margin-top: 30px; /* 태그와 bio 사이 간격 추가 */
+  margin-top: 10px; /* 태그와 bio 사이 간격 추가 */
 }
 
-/* 태그 스타일 */
 .tag {
   background-color: #e0e0e0;
   padding: 5px;
@@ -194,19 +197,10 @@ $breakpoint-tablet: 1024px;
   margin-right: 5px;
 }
 
-/* 아이콘 버튼 */
-.icon-btn {
-  background-color: transparent;
-  border: 2px solid #ccc;
-  border-radius: 10px; /* 둥근 모서리 */
-  width: 50px;
-  height: 50px; /* 정사각형 */
-  margin-top: 30px; /* 태그와의 마진 */
-  cursor: pointer;
-}
-
-.icon-btn:hover {
-  border-color: #aaa;
+.visibility {
+  font-size: 14px;
+  color: #666;
+  margin-top: 10px;
 }
 
 /* 게시물부 */
