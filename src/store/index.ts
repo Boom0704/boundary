@@ -20,8 +20,12 @@ export default createStore({
     setHashtags(state, tags: string[]) {
       state.hashtags = tags;
     },
-    clearPhotos(state) {
+    clearDatas(state) {
       state.photos = [];
+      state.currentPhotoIndex = 0;
+
+      state.contentText = "";
+      state.hashtags = [];
     },
     deletePhoto(state, index: number) {
       // 특정 인덱스의 사진을 삭제

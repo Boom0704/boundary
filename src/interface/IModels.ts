@@ -1,3 +1,16 @@
+// 유저가 사용하는 해시태그 정보 (해시태그 이름과 사용 횟수)
+export interface IHashtag {
+  tag: string; // 해시태그 이름
+  count: number; // 해당 해시태그가 사용된 횟수
+}
+
+// 유저의 공개도 설정
+export enum ProfileVisibility {
+  FULL = "full",
+  PARTIAL = "partial",
+  CLOSED = "closed",
+  PRIVATE = "private",
+}
 export interface IUser {
   id: string;
   username: string;
@@ -8,6 +21,11 @@ export interface IUser {
   posts: IPost[]; // 사용자가 올린 게시글들
   followers: IUser[]; // 유저의 팔로워들
   following: IUser[]; // 유저가 팔로우 중인 사람들
+  hashtags: IHashtag[]; // 유저가 자주 사용하는 해시태그
+  gender: "male" | "female"; // 성별
+  age?: number; // 나이 (선택적)
+  visibility: ProfileVisibility; // 유저의 프로필 공개도
+  isActive: boolean; // 유저가 활성 상태인지 여부
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,7 +37,7 @@ export interface IPost {
   caption: string; // 게시글 설명
   comments: IComment[]; // 댓글 목록
   likes: IUser[]; // 좋아요를 누른 사람들
-  tags: string[]; // 해시태그
+  tags: string[]; // 게시글 해시태그
   createdAt: Date;
   updatedAt: Date;
 }

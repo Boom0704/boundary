@@ -200,5 +200,8 @@ $breakpoint-tablet: 1024px;
     width: 18px;
     height: 18px;
   }
+  .add-page {
+    margin-right: 60px;
+  }
 }
 </style>

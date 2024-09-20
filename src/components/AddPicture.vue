@@ -61,7 +61,7 @@ $breakpoint-tablet: 1024px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 85vh;
+  height: 80vh;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -106,8 +106,8 @@ $breakpoint-tablet: 1024px;
 }
 
 .camera-icon {
-  max-width: 700px;
-  max-height: 700px;
+  max-width: 500px;
+  max-height: 500px;
   width: 100%;
   height: auto;
   color: #aaa;
@@ -115,6 +115,10 @@ $breakpoint-tablet: 1024px;
 @media (max-width: $breakpoint-mobile) {
   .add-picture-container {
     height: 70vh;
+  }
+
+  .camera-icon {
+    max-width: 300px;
   }
 }
 </style>

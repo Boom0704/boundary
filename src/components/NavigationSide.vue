@@ -26,7 +26,7 @@ import { ROUTES } from "@/utils/constants"; // ROUTES 상수 임포트
 import { BREAKPOINT_MOBILE, BREAKPOINT_TABLET } from "@/utils/breakpoints"; // 임계값 임포트
 import {
   HomeIcon,
-  InformationCircleIcon,
+  LinkIcon,
   UserIcon,
   PlusCircleIcon,
 } from "@heroicons/vue/24/outline";
@@ -35,7 +35,7 @@ export default defineComponent({
   name: "NavigationSide",
   components: {
     HomeIcon,
-    InformationCircleIcon,
+    LinkIcon,
     UserIcon,
     PlusCircleIcon,
   },
@@ -48,7 +48,7 @@ export default defineComponent({
       {
         path: ROUTES.ABOUT.path,
         name: ROUTES.ABOUT.name,
-        icon: InformationCircleIcon,
+        icon: LinkIcon,
       },
       {
         path: ROUTES.ADDPAGE.path,
