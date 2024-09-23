@@ -40,10 +40,10 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "Login" */ "../views/LoginView.vue"),
   },
   {
-    path: ROUTES.CONECTION.path,
-    name: ROUTES.CONECTION.name,
+    path: ROUTES.CONNECTION.path,
+    name: ROUTES.CONNECTION.name,
     component: () =>
-      import(/* webpackChunkName: "conetion" */ "../views/ConnectionView.vue"),
+      import(/* webpackChunkName: "connetion" */ "../views/ConnectionView.vue"),
   },
 ];
 
