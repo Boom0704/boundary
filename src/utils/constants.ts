@@ -24,8 +24,8 @@ export const ROUTES = {
     name: "login",
     path: "/login",
   },
-  CONECTION: {
-    name: "conection",
-    path: "/conection",
+  CONNECTION: {
+    name: "connection",
+    path: "/connection",
   },
 };
