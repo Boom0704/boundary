@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { user1, user2 } from "@/data/dubbyModel"; // dubbyModel에서 유저 데이터를 임포트
+import { dummyUsers } from "@/data/dubbyModel"; // dubbyModel에서 유저 데이터를 임포트
 import ConnectionItem from "@/components/ConnectionItem.vue"; // ConnectionItem 컴포넌트 임포트
 
 export default defineComponent({
@@ -22,7 +22,7 @@ export default defineComponent({
     ConnectionItem,
   },
   setup() {
-    const dummyConnections = [user1, user2]; // dubbyModel의 유저 데이터 사용
+    const dummyConnections = dummyUsers; // dubbyModel의 유저 데이터 사용
     return {
       dummyConnections,
     };
