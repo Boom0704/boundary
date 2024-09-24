@@ -38,7 +38,24 @@
         :key="index"
         class="hashtag-item"
       >
-        #{{ hashtag.tag }} <span>({{ hashtag.count }})</span>
+        {{ hashtag.tag }} <span>({{ hashtag.count }})</span>
+      </div>
+    </div>
+
+    <!-- 팔로워 이미지 리스트 박스 -->
+    <div class="follower-box">
+      <div class="follower-list">
+        <div
+          v-for="(follower, index) in user.followers"
+          :key="index"
+          class="follower-item"
+        >
+          <img
+            :src="follower.profilePictureUrl"
+            alt="Follower"
+            class="follower-image"
+          />
+        </div>
       </div>
     </div>
 
@@ -78,41 +95,43 @@ export default defineComponent({
 <style scoped>
 .connection-item {
   background-color: #e7f5e7;
-  border-radius: 10px;
-  padding: 40px;
-  margin-bottom: 40px;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
   max-width: 600px;
   margin: 0 auto; /* 가운데 정렬 */
+  padding-bottom: 30px; /* 하단 여백 추가 */
 }
 
 .profile-section {
   display: flex;
+  flex-direction: column; /* 사진과 정보가 세로로 배치되도록 설정 */
   align-items: center;
   margin-bottom: 30px;
 }
 
 .profile-image {
-  width: 120px;
-  height: 120px;
+  width: 400px; /* 300x300 크기로 조정 */
+  height: 400px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 30px;
+  margin-bottom: 20px; /* 이미지와 텍스트 사이 간격 추가 */
 }
 
 .profile-info {
-  text-align: left;
+  text-align: center; /* 텍스트가 중앙에 배치되도록 조정 */
 }
 
 .user-name {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: bold;
   margin: 0;
 }
 
 .user-bio {
-  font-size: 18px;
+  font-size: 20px;
   color: #666;
   margin: 10px 0 0 0;
 }
@@ -120,7 +139,7 @@ export default defineComponent({
 .stats-section {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 
 .stat-item {
@@ -142,7 +161,8 @@ export default defineComponent({
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  gap: 4px;
 }
 
 .hashtag-item {
@@ -152,7 +172,6 @@ export default defineComponent({
   border-radius: 20px;
   padding: 8px 12px;
   font-size: 16px;
-  margin: 8px;
   display: flex;
   align-items: center;
 }
@@ -163,19 +182,50 @@ export default defineComponent({
   color: gray;
 }
 
-.action-buttons {
+.follower-box {
+  max-width: 500px;
+  height: auto;
+  margin: 0 auto;
+  background-color: white;
+  border: 2px solid #60d360;
+  border-radius: 30px;
+  /* padding: 20px; */
+  overflow-x: auto;
   display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
+  justify-content: center;
 }
 
-.block-btn {
+.follower-list {
+  display: flex;
+  gap: 15px; /* 이미지 사이 간격 */
+  padding-left: 150px;
+}
+
+.follower-item {
+  flex-shrink: 0; /* 이미지가 가로로 계속 늘어나게 유지 */
+}
+
+.follower-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px; /* 버튼을 더 아래로 위치 */
+}
+
+.block-btn,
+.chain-btn {
   background-color: #f56464;
   color: white;
   border: none;
-  border-radius: 20px;
-  padding: 12px 30px;
-  font-size: 16px;
+  border-radius: 30px; /* 버튼을 더 둥글게 */
+  padding: 15px 50px; /* 버튼을 더 크게 */
+  font-size: 30px; /* 텍스트 크기 증가 */
   cursor: pointer;
 }
 
@@ -185,15 +235,14 @@ export default defineComponent({
 
 .chain-btn {
   background-color: #60d360;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 12px 30px;
-  font-size: 16px;
-  cursor: pointer;
 }
 
 .chain-btn:hover {
   background-color: #50c350;
+}
+
+/* 아이템 사이의 간격을 구분하기 위해 패딩 추가 */
+.connection-item + .connection-item {
+  margin-top: 50px; /* 아이템 간 구분을 위한 여백 */
 }
 </style>
