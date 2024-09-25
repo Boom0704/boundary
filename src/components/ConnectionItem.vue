@@ -43,21 +43,23 @@
     </div>
 
     <!-- 팔로워 이미지 리스트 박스 -->
-    <div class="follower-box">
-      <div class="follower-list">
-        <div
-          v-for="(follower, index) in user.followers"
-          :key="index"
-          class="follower-item"
-        >
-          <img
-            :src="follower.profilePictureUrl"
-            alt="Follower"
-            class="follower-image"
-          />
+    <ScrollComponent isHorizontal>
+      <div class="follower-box">
+        <div class="follower-list">
+          <div
+            v-for="(follower, index) in user.followers"
+            :key="index"
+            class="follower-item"
+          >
+            <img
+              :src="follower.profilePictureUrl"
+              alt="Follower"
+              class="follower-image"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </ScrollComponent>
 
     <!-- 액션 버튼 -->
     <div class="action-buttons">
@@ -70,9 +72,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { IUser } from "@/interface/IModels"; // IUser 인터페이스 가져오기
+import ScrollComponent from "@/components/common/ScrollComponent.vue"; // 스크롤 컴포넌트 임포트
 
 export default defineComponent({
   name: "ConnectionItem",
+  components: {
+    ScrollComponent,
+  },
   props: {
     user: {
       type: Object as PropType<IUser>,

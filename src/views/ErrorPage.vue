@@ -23,8 +23,7 @@ export default defineComponent({
     },
   },
   computed: {
-    // errorMessage에서 \n을 <br>로 바꿔서 HTML로 렌더링
-    formattedErrorMessage() {
+    formattedErrorMessage(this: { errorMessage: string }): string {
       return this.errorMessage.replace(/\n/g, "<br>");
     },
   },

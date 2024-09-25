@@ -10,18 +10,19 @@
     >
       <div class="photo-header">
         <div class="user-info">
-          <img
-            :src="post.author.profilePictureUrl"
-            alt="User Icon"
+          <ProfileView
+            :username="post.author.username"
+            :size="80"
             class="user-icon"
           />
           <span class="user-name">{{ post.author.username }}</span>
         </div>
         <div class="photo-actions">
-          <button class="action-btn text">버튼</button>
-          <!-- Heroicons에서 가져온 더보기 아이콘 적용 -->
-          <EllipsisHorizontalIcon class="action-btn info" />
+          <EllipsisHorizontalIcon class="action-btn info" @click="openModal" />
         </div>
+
+        <!-- 모달 컴포넌트 -->
+        <ActionModal :isVisible="isModalVisible" @close="closeModal" />
       </div>
 
       <!-- 좌우 클릭 영역: showNavigation이 true일 때만 표시 -->
@@ -34,18 +35,25 @@
     <!-- 글 파트 -->
     <div class="text-section">
       <div class="action-buttons">
-        <HeartIcon class="icon" /> {{ post.likes.length }}
-        <ChatBubbleBottomCenterTextIcon class="icon" />
+        <HeartIcon
+          class="like-icon"
+          :class="{ active: isLiked }"
+          @click="toggleLike"
+        />
+        {{ post.likes.length }}
+        <ChatBubbleBottomCenterTextIcon class="chat-icon" @click="toggleChat" />
         {{ post.comments.length }}
-        <PaperAirplaneIcon class="icon" />
+        <PaperAirplaneIcon class="share-icon" @click="toggleShare" />
       </div>
 
       <div class="post-caption">
         {{ post.caption }}
       </div>
 
-      <div class="comments-summary">댓글 {{ post.comments.length }}개</div>
-
+      <div class="comments-summary">
+        댓글 {{ post.comments.length }}개
+        <span class="more-comments" @click="loadMoreComments">더보기</span>
+      </div>
       <div class="comments-list">
         <div
           v-for="comment in post.comments"
@@ -57,20 +65,36 @@
         </div>
       </div>
 
-      <div class="post-date">{{ formatDate(post.createdAt) }}</div>
+      <div class="post-date-and-comment">
+        <input
+          type="text"
+          class="comment-input"
+          placeholder="댓글을 입력하세요"
+          v-model="commentInput"
+          @keypress.enter="submitComment"
+        />
+        <ChatBubbleBottomCenterTextIcon
+          v-if="isCommentNotEmpty"
+          class="submit-icon"
+          @click="submitComment"
+        />
+        <span class="post-date">{{ formatDate(post.createdAt) }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from "vue";
-import { IPost } from "@/interface/IModels"; // 인터페이스 IModels 사용
+import { defineComponent, ref, PropType, watch } from "vue";
+import { IPost } from "@/interface/IModels";
+import ActionModal from "@/components/modal/ActionModal.vue";
 import {
   HeartIcon,
   ChatBubbleBottomCenterTextIcon,
   PaperAirplaneIcon,
-  EllipsisHorizontalIcon, // 더보기 아이콘 가져오기
-} from "@heroicons/vue/24/outline"; // Hero Icons 임포트
+  EllipsisHorizontalIcon,
+} from "@heroicons/vue/24/outline";
+import ProfileView from "@/components/common/ProfileView.vue";
 
 export default defineComponent({
   name: "PostItem",
@@ -81,8 +105,45 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const isLiked = ref(false);
+    const isModalVisible = ref(false);
     const currentPhotoIndex = ref(0);
-    const showNavigation = ref(false); // 내비게이션 버튼 표시 여부
+    const showNavigation = ref(false);
+    const commentInput = ref("");
+    const isCommentNotEmpty = ref(false);
+
+    const loadMoreComments = () => {
+      console.log("loadMoreComments");
+    };
+
+    const toggleShare = () => {
+      console.log("쉐어클릭");
+    };
+
+    const toggleChat = () => {
+      console.log("챗클릭");
+      const inputElement = document.querySelector(
+        ".comment-input"
+      ) as HTMLInputElement;
+
+      if (inputElement) {
+        inputElement.focus();
+        inputElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+    const toggleLike = () => {
+      isLiked.value = !isLiked.value;
+      console.log("하트 클릭");
+    };
+
+    const openModal = () => {
+      isModalVisible.value = true;
+    };
+
+    const closeModal = () => {
+      isModalVisible.value = false;
+    };
 
     const nextPhoto = () => {
       currentPhotoIndex.value =
@@ -99,19 +160,44 @@ export default defineComponent({
       return new Date(date).toLocaleDateString();
     };
 
+    watch(commentInput, (newVal) => {
+      isCommentNotEmpty.value = newVal.trim().length > 0;
+    });
+
+    const submitComment = () => {
+      if (isCommentNotEmpty.value) {
+        console.log("댓글: " + commentInput.value);
+        commentInput.value = ""; // 입력 필드 초기화
+        isCommentNotEmpty.value = false; // 버튼 비활성화
+      }
+    };
+
     return {
       currentPhotoIndex,
       showNavigation,
       nextPhoto,
       previousPhoto,
       formatDate,
+      isModalVisible,
+      openModal,
+      closeModal,
+      isLiked,
+      toggleLike,
+      toggleChat,
+      toggleShare,
+      submitComment,
+      commentInput,
+      isCommentNotEmpty,
+      loadMoreComments,
     };
   },
   components: {
     HeartIcon,
     ChatBubbleBottomCenterTextIcon,
     PaperAirplaneIcon,
-    EllipsisHorizontalIcon, // 컴포넌트에 더보기 아이콘 추가
+    EllipsisHorizontalIcon,
+    ProfileView,
+    ActionModal,
   },
 });
 </script>
@@ -155,9 +241,6 @@ export default defineComponent({
 }
 
 .user-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
   margin-right: 10px;
 }
 
@@ -172,16 +255,17 @@ export default defineComponent({
   align-items: center;
 }
 
-.photo-actions .action-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 18px;
+.photo-actions .action-btn.info {
+  width: 100%; /* 아이콘 크기 설정 */
+  height: 50px;
+  color: rgb(164, 164, 164); /* 색상 설정 */
   cursor: pointer;
+  font-weight: bolder;
 }
 
-.photo-actions .action-btn.text {
-  width: 100px;
+.action-btn.info:hover {
+  height: 51px;
+  color: #ddd;
 }
 
 /* 사진 전환 버튼 */
@@ -216,6 +300,7 @@ export default defineComponent({
 /* 글 파트 */
 .text-section {
   padding: 15px;
+  padding-bottom: 0px;
 }
 
 .action-buttons {
@@ -224,9 +309,40 @@ export default defineComponent({
   align-items: center;
 }
 
-.icon {
+.share-icon {
   width: 24px;
   height: 24px;
+  fill: #dddddd00;
+}
+
+.share-icon :hover {
+  width: 25px;
+  color: rgb(65, 176, 255);
+}
+
+.chat-icon {
+  width: 24px;
+  height: 24px;
+  fill: #dddddd00;
+}
+
+.chat-icon :hover {
+  width: 25px;
+  color: rgb(52, 203, 32);
+}
+
+.like-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.like-icon.active {
+  fill: rgb(253, 53, 53);
+}
+
+.like-icon:hover {
+  width: 25px;
+  color: rgb(212, 90, 163);
 }
 
 .post-caption {
@@ -244,6 +360,17 @@ export default defineComponent({
   margin-top: 10px;
 }
 
+.more-comments {
+  color: #c0c0c0;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.more-comments:hover {
+  color: #808080;
+}
+
 .comment-item {
   margin-bottom: 5px;
 }
@@ -256,10 +383,37 @@ export default defineComponent({
   margin-left: 5px;
 }
 
+.post-date-and-comment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.comment-input {
+  width: 70%;
+  border: none;
+  padding: 8px;
+  outline: none;
+}
+
+.submit-icon {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  margin-left: 10px;
+  color: rgb(52, 203, 32);
+  transition: color 0.3s ease;
+}
+
+.submit-icon:hover {
+  fill: rgb(177, 255, 167);
+}
+
 .post-date {
-  text-align: right;
+  margin-left: auto; /* 자동으로 오른쪽 정렬 */
   font-size: 12px;
   color: gray;
-  margin-top: 10px;
 }
 </style>

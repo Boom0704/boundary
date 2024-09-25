@@ -96,15 +96,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, onMounted } from "vue";
 import { user1 } from "@/data/dubbyModel";
 import { ProfileVisibility } from "@/interface/IModels"; // 프로필 공개도 가져오기
 
 export default defineComponent({
   name: "ProfileView",
   setup() {
+    onMounted(() => {
+      window.scrollTo(0, 0);
+    });
     const user = ref(user1);
-    const gridCount = ref(1);
+    const gridCount = ref(3);
     const maxGridCount = ref(4);
     const currentView = ref("posts");
 
