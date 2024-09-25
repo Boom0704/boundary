@@ -100,6 +100,11 @@ export default defineComponent({
   opacity: 0.8;
   transition: opacity 0.3s ease;
   z-index: 99;
+
+  white-space: nowrap; /* 무조건 한 줄로 표시 */
+  overflow: hidden; /* 넘치는 텍스트는 숨김 */
+  text-overflow: ellipsis; /* ...으로 표시 */
+  max-width: 150px; /* 최대 너비를 설정 */
 }
 
 .fade-enter-active,

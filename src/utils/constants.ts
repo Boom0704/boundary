@@ -28,4 +28,8 @@ export const ROUTES = {
     name: "connection",
     path: "/connection",
   },
+  ERROR: {
+    name: "error",
+    path: "/error",
+  },
 };

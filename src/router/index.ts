@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { ROUTES } from "../utils/constants";
 import HomeView from "../views/HomeView.vue";
+import ErrorPage from "@/views/ErrorPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -45,11 +46,28 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "connetion" */ "../views/ConnectionView.vue"),
   },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "error",
+    component: ErrorPage,
+    props: {
+      errorCode: 404,
+      errorMessage:
+        "페이지를 찾을 수 없습니다. \n 올바른 주소를 입력해 주세요.",
+    },
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  },
 });
 
 export default router;
