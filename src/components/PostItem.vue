@@ -202,7 +202,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$breakpoint-mobile: 640px;
+$breakpoint-tablet: 1024px;
 .post-container {
   width: 100%;
   max-width: 600px;
@@ -250,21 +252,21 @@ export default defineComponent({
 }
 
 .photo-actions {
-  margin-right: 24px;
-  display: flex; /* 버튼들을 일렬로 배치 */
+  display: flex;
   align-items: center;
+  margin-left: auto;
+  padding-right: 10px; /* 우측 여백 추가 */
 }
 
 .photo-actions .action-btn.info {
-  width: 100%; /* 아이콘 크기 설정 */
-  height: 50px;
+  width: 80px; /* 아이콘 크기 설정 */
+  height: 80px;
+  margin-right: 5px;
   color: rgb(164, 164, 164); /* 색상 설정 */
   cursor: pointer;
-  font-weight: bolder;
 }
 
 .action-btn.info:hover {
-  height: 51px;
   color: #ddd;
 }
 
@@ -315,7 +317,7 @@ export default defineComponent({
   fill: #dddddd00;
 }
 
-.share-icon :hover {
+.share-icon:hover {
   width: 25px;
   color: rgb(65, 176, 255);
 }
@@ -326,7 +328,7 @@ export default defineComponent({
   fill: #dddddd00;
 }
 
-.chat-icon :hover {
+.chat-icon:hover {
   width: 25px;
   color: rgb(52, 203, 32);
 }
@@ -396,6 +398,7 @@ export default defineComponent({
   border: none;
   padding: 8px;
   outline: none;
+  font-size: large;
 }
 
 .submit-icon {
@@ -412,8 +415,46 @@ export default defineComponent({
 }
 
 .post-date {
-  margin-left: auto; /* 자동으로 오른쪽 정렬 */
+  margin-left: auto;
   font-size: 12px;
   color: gray;
+}
+
+/* 태블릿 대응 */
+@media (max-width: $breakpoint-tablet) {
+  .photo-header {
+    padding: 8px;
+  }
+
+  .photo-actions .action-btn.info {
+    width: 22px;
+    height: 22px;
+  }
+
+  .share-icon,
+  .chat-icon,
+  .like-icon {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* 모바일 대응 */
+@media (max-width: $breakpoint-mobile) {
+  .photo-header {
+    padding: 5px;
+  }
+
+  .photo-actions .action-btn.info {
+    width: 60px;
+    height: 60px;
+  }
+
+  .share-icon,
+  .chat-icon,
+  .like-icon {
+    width: 20px;
+    height: 20px;
+  }
 }
 </style>

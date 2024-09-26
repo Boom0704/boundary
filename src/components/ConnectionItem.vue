@@ -22,12 +22,12 @@
         <span>Posts</span>
       </div>
       <div class="stat-item">
-        <strong>{{ user.followers.length }}</strong>
-        <span>Followers</span>
+        <strong>{{ user.friends.length }}</strong>
+        <span>Friends</span>
       </div>
       <div class="stat-item">
-        <strong>{{ user.following.length }}</strong>
-        <span>Following</span>
+        <strong>{{ user.hashtags.length }}</strong>
+        <span>Hashtags</span>
       </div>
     </div>
 
@@ -44,17 +44,17 @@
 
     <!-- 팔로워 이미지 리스트 박스 -->
     <ScrollComponent isHorizontal>
-      <div class="follower-box">
-        <div class="follower-list">
+      <div class="friend-box">
+        <div class="friend-list">
           <div
-            v-for="(follower, index) in user.followers"
+            v-for="(friend, index) in user.friends"
             :key="index"
-            class="follower-item"
+            class="friend-item"
           >
             <img
-              :src="follower.profilePictureUrl"
-              alt="Follower"
-              class="follower-image"
+              :src="friend.profilePictureUrl"
+              alt="friend"
+              class="friend-image"
             />
           </div>
         </div>
@@ -188,7 +188,7 @@ export default defineComponent({
   color: gray;
 }
 
-.follower-box {
+.friend-box {
   max-width: 500px;
   height: auto;
   margin: 0 auto;
@@ -201,17 +201,16 @@ export default defineComponent({
   justify-content: center;
 }
 
-.follower-list {
+.friend-list {
   display: flex;
   gap: 15px; /* 이미지 사이 간격 */
-  padding-left: 150px;
 }
 
-.follower-item {
+.friend-item {
   flex-shrink: 0; /* 이미지가 가로로 계속 늘어나게 유지 */
 }
 
-.follower-image {
+.friend-image {
   width: 120px;
   height: 120px;
   border-radius: 50%;

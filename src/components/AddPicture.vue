@@ -70,6 +70,7 @@ $breakpoint-tablet: 1024px;
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 30px;
   background-color: #e7efe7;
   width: 100%;
   height: 70%;

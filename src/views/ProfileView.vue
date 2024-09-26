@@ -11,9 +11,9 @@
         <!-- 프로필 공개 상태 표시 -->
         <p class="visibility">Profile visibility: {{ visibilityLabel }}</p>
         <div class="tags">
-          <span v-for="tag in user.hashtags" :key="tag.tag" class="tag"
-            >{{ tag.tag }} {{ tag.count }}</span
-          >
+          <span v-for="tag in user.hashtags" :key="tag.tag" class="tag-item">
+            {{ tag.tag }} ({{ tag.count }})
+          </span>
         </div>
       </div>
     </div>
@@ -34,16 +34,16 @@
           Posts
         </button>
         <button
-          @click="currentView = 'followers'"
-          :class="{ active: currentView === 'followers' }"
+          @click="currentView = 'friends'"
+          :class="{ active: currentView === 'friends' }"
         >
-          Followers
+          Friends
         </button>
         <button
-          @click="currentView = 'following'"
-          :class="{ active: currentView === 'following' }"
+          @click="currentView = 'hashtags'"
+          :class="{ active: currentView === 'hashtags' }"
         >
-          Following
+          Hashtags
         </button>
       </div>
 
@@ -65,12 +65,12 @@
       </div>
 
       <div
-        v-else-if="currentView === 'followers'"
+        v-else-if="currentView === 'friends'"
         class="grid"
         :style="{ gridTemplateColumns: `repeat(${gridCount}, 1fr)` }"
       >
         <div
-          v-for="follower in user.followers"
+          v-for="follower in user.friends"
           :key="follower.id"
           class="grid-item"
         >
@@ -79,16 +79,20 @@
       </div>
 
       <div
-        v-else-if="currentView === 'following'"
+        v-else-if="currentView === 'hashtags'"
         class="grid"
         :style="{ gridTemplateColumns: `repeat(${gridCount}, 1fr)` }"
       >
         <div
-          v-for="following in user.following"
-          :key="following.id"
+          v-for="hashtag in user.hashtags"
+          :key="hashtag.tag"
           class="grid-item"
         >
-          <img :src="following.profilePictureUrl" alt="Following Profile" />
+          <HashTag
+            :tag="hashtag.tag"
+            :count="hashtag.count"
+            :line="gridCount"
+          />
         </div>
       </div>
     </div>
@@ -98,10 +102,14 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from "vue";
 import { user1 } from "@/data/dubbyModel";
-import { ProfileVisibility } from "@/interface/IModels"; // 프로필 공개도 가져오기
+import { ProfileVisibility } from "@/interface/IModels";
+import HashTag from "@/components/HashTag.vue";
 
 export default defineComponent({
   name: "ProfileView",
+  components: {
+    HashTag,
+  },
   setup() {
     onMounted(() => {
       window.scrollTo(0, 0);
@@ -113,11 +121,10 @@ export default defineComponent({
 
     const currentViewPosition = computed(() => {
       if (currentView.value === "posts") return 0;
-      if (currentView.value === "followers") return 33.33;
+      if (currentView.value === "friends") return 33.33;
       return 66.66;
     });
 
-    // 프로필 공개 상태 영어 그대로 반환
     const visibilityLabel = computed(() => {
       return user.value.visibility;
     });
@@ -141,22 +148,21 @@ $breakpoint-tablet: 1024px;
 .profile-container {
   padding: 20px;
   border-bottom: 1px solid #d3d3d3;
-  margin: 5% 0; /* 상하 10px의 마진 */
+  margin: 5% 0;
 }
 
 /* 데이터부 */
 .data-section {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 공간을 균등 분배 */
+  justify-content: space-between;
   @media (max-width: $breakpoint-mobile) {
-    flex-direction: column; /* 모바일에서는 세로 정렬 */
+    flex-direction: column;
   }
 }
 
-/* 프로필 사진 */
 .profile-picture img {
-  border-radius: 80%;
+  border-radius: 50%;
   max-width: 500px;
   height: 440px;
   @media (max-width: $breakpoint-tablet) {
@@ -169,7 +175,6 @@ $breakpoint-tablet: 1024px;
   }
 }
 
-/* 유저 정보 */
 .user-info {
   margin-right: 7%;
   margin-left: 20px;
@@ -184,22 +189,33 @@ $breakpoint-tablet: 1024px;
   }
 }
 
-/* bio와 태그 사이 간격 조정 */
 .bio {
-  margin-top: 30px; /* 간격을 기존보다 20px 더 추가 */
+  margin-top: 30px;
 }
 
 .tags {
-  margin-top: 10px; /* 태그와 bio 사이 간격 추가 */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* 태그 간의 간격 */
 }
 
-.tag {
-  background-color: #e0e0e0;
-  padding: 5px;
-  border-radius: 5px;
-  margin-right: 5px;
+.tag-item {
+  padding: 5px 10px;
+  background-color: white;
+  border: 2px solid #60d360; /* 2px 두께의 초록색 선 */
+  color: black;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  font-weight: bolder;
+  gap: 5px;
+  transition: background-color 0.3s ease; /* 배경색 전환 효과 */
 }
 
+.tag-item:hover {
+  background-color: #60d360; /* 호버 시 초록색 배경 */
+  color: white; /* 호버 시 글자 색을 흰색으로 변경 */
+}
 .visibility {
   font-size: 14px;
   color: #666;
@@ -209,44 +225,38 @@ $breakpoint-tablet: 1024px;
 /* 게시물부 */
 .post-section {
   margin-top: 30px;
-  border-top: 1px solid #d3d3d3; /* 구분선 추가 */
-  border-bottom: 1px solid #d3d3d3;
+  border-top: 1px solid #d3d3d3;
   padding-top: 10px;
-  padding-bottom: 10px;
-  margin-right: 5%;
 }
 
-/* 세팅파트 */
 .settings {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 20px; /* 아래로 마진 추가 */
+  margin-bottom: 20px;
 }
 
 input[type="range"] {
-  accent-color: #4caf50; /* 녹색 슬라이더 */
+  accent-color: #4caf50;
 }
 
-/* 선택파트 */
 .selection {
   display: flex;
   justify-content: space-around;
-  margin-top: 10px;
 }
 
 .selection button {
-  flex: 1; /* 버튼들이 가로로 가득 채우도록 설정 */
-  font-size: 18px; /* 글씨 크기 증가 */
+  flex: 1;
+  font-size: 18px;
   background-color: transparent;
   border: none;
   cursor: pointer;
 }
 
-.selection button:hover {
-  font-weight: bold; /* 호버 시 강조 */
+.selection button.active {
+  font-weight: bold;
+  color: #000;
 }
 
-/* 선택한 파트 하단 블록 */
 .selection-indicator {
   width: 33.33%;
   height: 4px;
@@ -256,26 +266,23 @@ input[type="range"] {
   top: 5px;
 }
 
-/* 게시글, 팔로워, 팔로잉 그리드 */
+/* 그리드 */
 .grid {
   display: grid;
   gap: 10px;
   margin-top: 20px;
-  grid-template-columns: repeat(3, 1fr); /* 기본값으로 3줄 그리드 */
 }
 
 .grid-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 사진이 맞지 않으면 가운데 정렬 */
-  background-color: #000; /* 사진이 없는 부분은 검정 */
+  object-fit: cover;
   display: block;
 }
 
 .grid-item {
-  width: 100%;
-  padding-top: 100%; /* 정사각형 유지 */
   position: relative;
+  padding-top: 100%;
 }
 
 .grid-item img {

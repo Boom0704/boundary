@@ -60,22 +60,22 @@
       <div class="info-box">
         <div class="info-item">
           <div>
-            <span class="label">포스트 수:</span>
+            <span class="label">Post:</span>
             <span class="label_value">{{ user.posts.length }}</span>
           </div>
           <div></div>
         </div>
         <div class="info-item">
           <div>
-            <span class="label">팔로워:</span>
-            <span class="label_value">{{ user.followers.length }}</span>
+            <span class="label">Friends:</span>
+            <span class="label_value">{{ user.friends.length }}</span>
           </div>
           <div></div>
         </div>
         <div class="info-item">
           <div>
-            <span class="label">팔로잉:</span>
-            <span class="label_value">{{ user.following.length }}</span>
+            <span class="label">HashTag:</span>
+            <span class="label_value">{{ user.hashtags.length }}</span>
           </div>
           <div></div>
         </div>

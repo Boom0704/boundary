@@ -16,11 +16,17 @@ const user1: IUser = {
   bio: "안녕하세요! 유저1입니다.",
   website: "https://user1.dev",
   posts: [], // 게시글 나중에 할당
-  followers: [], // 팔로워 나중에 추가
-  following: [], // 팔로잉 나중에 추가
+  friends: [], // 팔로워 나중에 추가
   hashtags: [
     { tag: "#밥", count: 20 }, // 해시태그 예시
     { tag: "#여행", count: 5 },
+    { tag: "#치킨", count: 5 },
+    { tag: "#물", count: 5 },
+    { tag: "#물", count: 7 },
+    { tag: "#사과주를먹는자랑", count: 2 },
+    { tag: "#포도", count: 3 },
+    { tag: "#우주", count: 5 },
+    { tag: "#비행", count: 4 },
   ],
   gender: "male",
   age: 30, // 나이 추가
@@ -40,8 +46,7 @@ const user2: IUser = {
   bio: "안녕하세요! 유저2입니다.",
   website: "https://user2.dev",
   posts: [], // 게시글 나중에 할당
-  followers: [],
-  following: [],
+  friends: [],
   hashtags: [{ tag: "#카페", count: 3 }],
   gender: "female",
   age: 28, // 나이 추가
@@ -52,11 +57,9 @@ const user2: IUser = {
 };
 
 // 서로 팔로잉/팔로워 관계 설정
-user1.followers = [user2, user2, user2, user2, user1];
-user1.following = [user2, user2, user2, user2, user1];
+user1.friends = [user2, user1, user2, user2, user1];
 
-user2.followers = [user2, user2, user2, user2, user1];
-user2.following = [user2, user2, user2, user2, user1];
+user2.friends = [user2, user2, user2, user2, user1];
 
 // 더미 댓글 생성
 const commentOnPost1ByUser2: IComment = {
