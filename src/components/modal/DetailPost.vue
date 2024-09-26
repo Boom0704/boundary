@@ -93,8 +93,8 @@
     </div>
   </div>
 </template>
-  
-  <script lang="ts">
+
+<script lang="ts">
 import { defineComponent, ref, PropType, watch } from "vue";
 import { IPost } from "@/interface/IModels";
 import ActionModal from "@/components/modal/ActionModal.vue";
@@ -199,8 +199,8 @@ export default defineComponent({
   },
 });
 </script>
-  
-  <style scoped>
+
+<style scoped>
 .detail-post-modal {
   display: flex;
   flex-direction: row;
@@ -340,4 +340,3 @@ export default defineComponent({
   color: rgb(52, 203, 32);
 }
 </style>
-  

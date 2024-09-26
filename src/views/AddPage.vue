@@ -169,6 +169,8 @@ $breakpoint-tablet: 1024px;
 @media (max-width: $breakpoint-mobile) {
   .button-container {
     padding: 5px 10px;
+    margin-bottom: 80px;
+    background: #dddddd;
   }
 
   .prev-button,

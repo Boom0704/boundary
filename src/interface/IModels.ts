@@ -19,8 +19,7 @@ export interface IUser {
   bio: string;
   website?: string; // Optional
   posts: IPost[]; // 사용자가 올린 게시글들
-  followers: IUser[]; // 유저의 팔로워들
-  following: IUser[]; // 유저가 팔로우 중인 사람들
+  friends: IUser[]; // 유저의 팔로워들
   hashtags: IHashtag[]; // 유저가 자주 사용하는 해시태그
   gender: "male" | "female"; // 성별
   age?: number; // 나이 (선택적)
