@@ -59,7 +59,7 @@ const user2: IUser = {
 // 서로 팔로잉/팔로워 관계 설정
 user1.friends = [user2, user1, user2, user2, user1];
 
-user2.friends = [user2, user2, user2, user2, user1];
+user2.friends = [user2, user2, user2, user1];
 
 // 더미 댓글 생성
 const commentOnPost1ByUser2: IComment = {
@@ -91,7 +91,15 @@ const postByUser1: IPost = {
     "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?fit=crop&w=600&h=400&q=80",
   ],
   caption: "유저1의 멋진 여행 사진",
-  comments: [commentOnPost1ByUser2],
+  comments: [
+    commentOnPost1ByUser2,
+    commentOnPost1ByUser2,
+    commentOnPost1ByUser2,
+    commentOnPost1ByUser2,
+    commentOnPost1ByUser2,
+    commentOnPost1ByUser2,
+    commentOnPost1ByUser2,
+  ],
   likes: [user2],
   tags: ["#여행", "#사진", "#자연"],
   createdAt: new Date(),
@@ -145,5 +153,5 @@ const dummyUsers: IUser[] = [
 ];
 
 // 더미 데이터를 export
-export { dummyPosts, dummyUsers };
+export { dummyPosts, dummyUsers, postByUser1 };
 export { user1, user2 };

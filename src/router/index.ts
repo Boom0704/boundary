@@ -47,8 +47,14 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "connetion" */ "../views/ConnectionView.vue"),
   },
   {
-    path: "/:pathMatch(.*)*",
-    name: "error",
+    path: ROUTES.DETAIL.path,
+    name: ROUTES.DETAIL.name,
+    component: () =>
+      import(/* webpackChunkName: "detail" */ "../views/DetailPost.vue"),
+  },
+  {
+    path: ROUTES.ERROR.path,
+    name: ROUTES.ERROR.name,
     component: ErrorPage,
     props: {
       errorCode: 404,
