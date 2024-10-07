@@ -29,7 +29,7 @@ const user1: IUser = {
     { tag: "#비행", count: 4 },
   ],
   gender: "male",
-  age: 30, // 나이 추가
+  birthday: "19970505", // 나이 추가
   visibility: ProfileVisibility.FULL, // 프로필 완전 공개
   isActive: true, // 활성 상태
   createdAt: new Date(),
@@ -49,7 +49,7 @@ const user2: IUser = {
   friends: [],
   hashtags: [{ tag: "#카페", count: 3 }],
   gender: "female",
-  age: 28, // 나이 추가
+  birthday: "19970505", // 나이 추가
   visibility: ProfileVisibility.PARTIAL, // 부분 공개
   isActive: true, // 활성 상태
   createdAt: new Date(),
