@@ -11,6 +11,7 @@ export enum ProfileVisibility {
   CLOSED = "closed",
   PRIVATE = "private",
 }
+
 export interface IUser {
   id: string;
   username: string;
@@ -22,7 +23,7 @@ export interface IUser {
   friends: IUser[]; // 유저의 팔로워들
   hashtags: IHashtag[]; // 유저가 자주 사용하는 해시태그
   gender: "male" | "female"; // 성별
-  age?: number; // 나이 (선택적)
+  birthday: string; // 생일 ("YYYY.MM.DD" 형식으로 저장)
   visibility: ProfileVisibility; // 유저의 프로필 공개도
   isActive: boolean; // 유저가 활성 상태인지 여부
   createdAt: Date;

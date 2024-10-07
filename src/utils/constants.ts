@@ -28,8 +28,12 @@ export const ROUTES = {
     name: "connection",
     path: "/connection",
   },
+  DETAIL: {
+    name: "detail",
+    path: "/detail/:id",
+  },
   ERROR: {
     name: "error",
-    path: "/error",
+    path: `/:pathMatch(.*)*`,
   },
 };

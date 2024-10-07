@@ -3,27 +3,22 @@
     <div class="signup-container">
       <h2 class="signup-title">가입하기</h2>
 
-      <!-- 성 입력 -->
+      <!-- 사용자 이름 입력 -->
       <input
-        v-model="lastName"
+        v-model="username"
         type="text"
-        placeholder="성"
+        placeholder="사용자 이름"
         class="input-field"
       />
-      <!-- 이름 입력 -->
+
+      <!-- 이메일 입력 -->
       <input
-        v-model="firstName"
-        type="text"
-        placeholder="이름"
+        v-model="email"
+        type="email"
+        placeholder="이메일"
         class="input-field"
       />
-      <!-- 이메일/휴대폰 번호 입력 -->
-      <input
-        v-model="contactInfo"
-        type="text"
-        placeholder="휴대폰 번호 또는 이메일"
-        class="input-field"
-      />
+
       <!-- 비밀번호 입력 -->
       <input
         v-model="password"
@@ -35,7 +30,7 @@
       <!-- 생일 입력 -->
       <div class="birthday-input">
         <input
-          v-model="birthday"
+          v-model="birthdayText"
           type="text"
           placeholder="YYYY-MM-DD"
           @blur="validateBirthday"
@@ -72,7 +67,8 @@
 </template>
 
 <script lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { signupUser } from "@/utils/api";
 
 export default {
   name: "SignUp",
@@ -83,19 +79,19 @@ export default {
     },
   },
   setup(props: { close: () => void }) {
-    const lastName = ref("");
-    const firstName = ref("");
-    const contactInfo = ref("");
+    const username = ref("");
+    const email = ref("");
     const password = ref("");
-    const birthday = ref("");
+    const birthday = ref(""); // Date input
+    const birthdayText = ref(""); // Text input ("YYYY-MM-DD" 형식)
     const gender = ref("");
 
-    // 생일 입력 유효성 검사
+    // 생일 입력 유효성 검사 (텍스트 필드)
     const validateBirthday = () => {
       const regex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!regex.test(birthday.value)) {
+      if (!regex.test(birthdayText.value)) {
         alert("올바른 생년월일을 입력해주세요.");
-        birthday.value = "";
+        birthdayText.value = "";
       }
     };
 
@@ -104,17 +100,44 @@ export default {
       gender.value = selectedGender;
     };
 
+    // Text 형식의 생일 입력이 date input과 동기화
+    watch(birthdayText, (newVal) => {
+      birthday.value = newVal; // 텍스트가 변경될 때 date picker와 동기화
+    });
+
+    // Date picker로 선택된 생일이 텍스트 입력 필드에 반영됨
+    watch(birthday, (newVal) => {
+      birthdayText.value = newVal; // 날짜 선택 시 텍스트 인풋 필드 업데이트
+    });
+
+    // 생일 데이터를 YYYY.MM.DD 형식으로 변환하여 저장
+    const formatBirthday = (date: string) => {
+      const parts = date.split("-");
+      if (parts.length === 3) {
+        return `${parts[0]}.${parts[1]}.${parts[2]}`;
+      }
+      return date;
+    };
+
     // 회원가입 처리
-    const signup = () => {
-      // 여기에 회원가입 로직 추가
-      console.log("회원가입 정보", {
-        lastName: lastName.value,
-        firstName: firstName.value,
-        contactInfo: contactInfo.value,
+    const signup = async () => {
+      const formattedBirthday = formatBirthday(birthday.value);
+
+      // User 데이터를 객체로 생성
+      const User = {
+        username: username.value,
+        email: email.value,
         password: password.value,
-        birthday: birthday.value,
+        birthday: formattedBirthday, // 생일 저장
         gender: gender.value,
-      });
+      };
+
+      try {
+        const response = await signupUser(User); // API 호출
+        console.log("회원가입 성공:", response.data);
+      } catch (error) {
+        console.error("회원가입 실패:", error);
+      }
     };
 
     // 모달 닫기
@@ -123,11 +146,11 @@ export default {
     };
 
     return {
-      lastName,
-      firstName,
-      contactInfo,
+      username,
+      email,
       password,
       birthday,
+      birthdayText,
       gender,
       validateBirthday,
       selectGender,
@@ -139,7 +162,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-/* 모달의 배경을 어둡게 */
 .signup-overlay {
   position: fixed;
   top: 0;
@@ -152,7 +174,6 @@ export default {
   align-items: center;
 }
 
-/* 회원가입 모달 창 */
 .signup-container {
   background-color: white;
   padding: 30px;
@@ -212,7 +233,7 @@ export default {
 }
 
 .gender-btn:hover {
-  background-color: darken(rgba(142, 199, 142, 0.721), 10%);
+  background-color: rgba(142, 199, 142, 0.721);
 }
 
 .signup-btn {
