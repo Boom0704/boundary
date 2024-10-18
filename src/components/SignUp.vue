@@ -68,6 +68,8 @@
 
 <script lang="ts">
 import { ref, watch } from "vue";
+import { useToast } from "vue-toastification";
+import "vue-toastification/dist/index.css";
 import { signupUser } from "@/utils/api";
 
 export default {
@@ -79,6 +81,8 @@ export default {
     },
   },
   setup(props: { close: () => void }) {
+    const toast = useToast();
+
     const username = ref("");
     const email = ref("");
     const password = ref("");
@@ -86,13 +90,42 @@ export default {
     const birthdayText = ref(""); // Text input ("YYYY-MM-DD" 형식)
     const gender = ref("");
 
+    // 입력값 검증
+    const validateInputs = () => {
+      if (!username.value) {
+        toast.error("사용자 이름을 입력해주세요.", { timeout: 2000 });
+        return false;
+      }
+      if (!email.value) {
+        toast.error("이메일을 입력해주세요.", { timeout: 2000 });
+        return false;
+      }
+      if (!password.value) {
+        toast.error("비밀번호를 입력해주세요.", { timeout: 2000 });
+        return false;
+      }
+      if (!birthdayText.value || !validateBirthday()) {
+        toast.error("올바른 생년월일을 입력해주세요.", { timeout: 2000 });
+        return false;
+      }
+      if (!gender.value) {
+        toast.error("성별을 선택해주세요.", { timeout: 2000 });
+        return false;
+      }
+      return true;
+    };
+
     // 생일 입력 유효성 검사 (텍스트 필드)
     const validateBirthday = () => {
       const regex = /^\d{4}-\d{2}-\d{2}$/;
       if (!regex.test(birthdayText.value)) {
-        alert("올바른 생년월일을 입력해주세요.");
+        toast.error("올바른 생년월일을 입력해주세요. (YYYY-MM-DD 형식)", {
+          timeout: 2000,
+        });
         birthdayText.value = "";
+        return false;
       }
+      return true;
     };
 
     // 성별 선택
@@ -121,6 +154,10 @@ export default {
 
     // 회원가입 처리
     const signup = async () => {
+      if (!validateInputs()) {
+        return;
+      }
+
       const formattedBirthday = formatBirthday(birthday.value);
 
       // User 데이터를 객체로 생성
@@ -134,9 +171,13 @@ export default {
 
       try {
         const response = await signupUser(User); // API 호출
-        console.log("회원가입 성공:", response.data);
+        toast.success("회원가입 성공!", { timeout: 2000 });
+        props.close();
       } catch (error) {
-        console.error("회원가입 실패:", error);
+        const meg = "회원가입 실패: " + error;
+        toast.error(meg, {
+          timeout: 2000,
+        });
       }
     };
 

@@ -20,11 +20,11 @@
       <!-- 로그인 실패 메시지 -->
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
-      <!-- 아이디 입력 -->
+      <!-- 이메일 입력 -->
       <input
         type="text"
-        v-model="username"
-        placeholder="아이디"
+        v-model="email"
+        placeholder="이메일"
         class="input-field"
       />
 
@@ -52,6 +52,8 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import SignUp from "@/components/SignUp.vue";
+import { useToast } from "vue-toastification";
+import { loginUser } from "@/utils/api";
 
 export default {
   name: "LoginView",
@@ -59,32 +61,54 @@ export default {
     SignUp,
   },
   setup() {
-    const username = ref("");
+    const email = ref("");
     const password = ref("");
     const errorMessage = ref("");
     const showSignUp = ref(false);
     const router = useRouter();
-    const isTabletOrLarger = ref(window.innerWidth >= 1024); // 1024px 이상일 때
+    const toast = useToast();
+    const isTabletOrLarger = ref(window.innerWidth >= 1024);
 
-    const login = () => {
-      if (username.value === "1" && password.value === "1") {
-        errorMessage.value = "";
-        router.push("/"); // 로그인 성공 시 홈으로 이동
-      } else {
-        errorMessage.value = "아이디 또는 비밀번호가 잘못되었습니다.";
+    const login = async () => {
+      try {
+        const response = await loginUser({
+          email: email.value,
+          password: password.value,
+        });
+
+        // response가 false일 경우 처리
+        if (response && response.status === 200) {
+          toast.success("로그인 성공!", { timeout: 2000 });
+          errorMessage.value = "";
+          router.push("/"); // 로그인 성공 시 홈으로 이동
+        } else {
+          throw new Error("Unexpected response status");
+        }
+      } catch (error: any) {
+        // 오류 처리
+        if (error.response && error.response.status === 401) {
+          toast.error("아이디 또는 비밀번호가 잘못되었습니다.", {
+            timeout: 2000,
+          });
+        } else {
+          toast.error("로그인 실패. 다시 시도해주세요.", { timeout: 2000 });
+        }
+        errorMessage.value = "로그인 실패. 다시 시도해주세요.";
       }
     };
+
     const closeModal = () => {
       showSignUp.value = false;
     };
+
     const updateViewport = () => {
-      isTabletOrLarger.value = window.innerWidth >= 1024; // 1024px 이상일 때
+      isTabletOrLarger.value = window.innerWidth >= 1024;
     };
 
     window.addEventListener("resize", updateViewport);
 
     return {
-      username,
+      email,
       password,
       errorMessage,
       login,

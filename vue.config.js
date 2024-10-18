@@ -4,7 +4,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     proxy: {
-      '/signup': {
+      "/signup": {
         target: process.env.VUE_APP_API_URL,
         changeOrigin: true,
         secure: false,
@@ -19,9 +19,9 @@ module.exports = defineConfig({
     manifestOptions: {
       background_color: "#000000",
     },
-    workboxPluginMode: "InjectManifest",
+    workboxPluginMode: "GenerateSW",
     workboxOptions: {
-      swSrc: "src/service-worker.ts",
+      skipWaiting: true,
     },
   },
 });
