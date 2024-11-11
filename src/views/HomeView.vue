@@ -1,16 +1,16 @@
 <template>
   <div class="home">
     <div class="centered-box">
-      <!-- 더미 데이터를 이용한 PostItem 렌더링 -->
-      <PostItem v-for="post in dummyPosts" :key="post.id" :post="post" />
+      <!-- API에서 불러온 게시물 데이터를 이용한 PostItem 렌더링 -->
+      <PostItem v-for="post in posts" :key="post.id" :post="post" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { dummyPosts } from "@/data/dubbyModel"; // 더미 데이터 임포트
+import { defineComponent, onMounted, ref } from "vue";
 import PostItem from "@/components/PostItem.vue"; // PostItem 컴포넌트 임포트
+import { fetchActivePosts } from "@/utils/api"; // API 함수 임포트
 
 export default defineComponent({
   name: "HomeView",
@@ -18,8 +18,19 @@ export default defineComponent({
     PostItem,
   },
   setup() {
+    const posts = ref([]); // 게시물 데이터를 담을 변수
+
+    // 컴포넌트가 마운트되면 API 요청
+    onMounted(async () => {
+      try {
+        posts.value = await fetchActivePosts();
+      } catch (error) {
+        console.error("게시물 데이터를 불러오는 중 오류 발생:", error);
+      }
+    });
+
     return {
-      dummyPosts,
+      posts,
     };
   },
 });

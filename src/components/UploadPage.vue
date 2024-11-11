@@ -1,8 +1,6 @@
 <template>
   <div class="upload-page">
     <h1>업로드 중입니다...</h1>
-
-    <!-- 처리 중인 로딩 애니메이션 -->
     <div class="loading-spinner"></div>
   </div>
 </template>
@@ -11,22 +9,58 @@
 import { useStore } from "vuex";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { createPost, uploadMultipleFiles } from "@/utils/api";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "UploadPage",
   setup() {
     const store = useStore();
     const router = useRouter();
+    const toast = useToast();
 
     const simulateUploadProcess = async () => {
-      // 2초 대기하는 비동기 함수 (서버 요청 대체)
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const timeout = setTimeout(() => {
+        toast.error("업로드 실패! 시간이 너무 오래 걸립니다.");
+        router.push({ name: "home" });
+      }, 5000);
 
-      // Vuex의 photos 상태를 비움
-      store.commit("clearDatas");
+      try {
+        const photos = store.state.photo.photos;
+        const contentText = store.state.photo.contentText;
+        const hashtagsProxy = store.state.photo.hashtags;
+        const user = store.state.user.user;
 
-      // 업로드가 완료되면 홈으로 리디렉션
-      router.push({ name: "home" });
+        // 파일 업로드
+        const imageUrls = await uploadMultipleFiles(photos);
+
+        if (!imageUrls || imageUrls.length === 0) {
+          throw new Error("이미지 업로드 중 오류 발생");
+        }
+
+        // 프록시 해제하여 hashtags를 배열로 변환
+        const hashtags = [...hashtagsProxy];
+
+        // 게시물 데이터 생성
+        const postPayload = {
+          authorId: user ? user.id : 0, // 기본값 설정
+          imageUrls: imageUrls,
+          caption: contentText,
+          hashtags: hashtags,
+        };
+
+        await createPost(postPayload);
+
+        clearTimeout(timeout);
+        store.commit("photo/clearDatas");
+        toast.success("업로드 완료!");
+        router.push({ name: "home" });
+      } catch (error) {
+        console.error("업로드 실패:", error);
+        clearTimeout(timeout);
+        toast.error("업로드 실패. 다시 시도해주세요.");
+        router.push({ name: "home" });
+      }
     };
 
     onMounted(() => {

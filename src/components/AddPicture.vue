@@ -36,8 +36,10 @@ export default {
   },
   setup() {
     const store = useStore();
-    const photos = computed(() => store.state.photos);
-    const currentPhotoIndex = computed(() => store.state.currentPhotoIndex);
+    const photos = computed(() => store.state.photo.photos);
+    const currentPhotoIndex = computed(
+      () => store.state.photo.currentPhotoIndex
+    );
 
     const getPhotoUrl = (photo: File | Blob) => {
       return URL.createObjectURL(photo);
