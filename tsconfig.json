@@ -16,9 +16,7 @@
       "webpack-env" // 'service-worker' 관련 추가는 필요 없음
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "lib": [
       "esnext",
@@ -36,7 +34,5 @@
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

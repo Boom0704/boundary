@@ -171,11 +171,21 @@ export default {
 
       try {
         const response = await signupUser(User); // API 호출
-        toast.success("회원가입 성공!", { timeout: 2000 });
-        props.close();
-      } catch (error) {
-        const meg = "회원가입 실패: " + error;
-        toast.error(meg, {
+
+        // 응답이 200일 때만 성공 처리
+        if (response && response.status === 200) {
+          toast.success("회원가입 성공!", { timeout: 2000 });
+          props.close();
+        } else {
+          throw new Error("회원가입 실패: 예상치 못한 응답 상태");
+        }
+      } catch (error: any) {
+        // 오류 메시지를 상세히 전달
+        const message =
+          error.response && error.response.status === 401
+            ? "회원가입 실패: 권한이 없습니다."
+            : "회원가입 실패: " + error.message;
+        toast.error(message, {
           timeout: 2000,
         });
       }

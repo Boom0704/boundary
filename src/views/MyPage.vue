@@ -2,114 +2,163 @@
   <div class="mypage-container">
     <!-- 상단 사진부 -->
     <div class="photo-section">
-      <!-- 가운데 정렬된 프로필 정보 -->
       <div class="profile-info-centered">
-        <!-- 둥근 사각형 프로필 사진 -->
         <img
-          :src="user.profilePictureUrl"
+          :src="localUser.profilePictureUrl"
           alt="Profile Picture"
           class="profile-picture"
         />
         <div class="profile-details">
-          <div class="username">{{ user.username }}</div>
-          <div class="email">{{ user.email }}</div>
+          <div class="username">{{ localUser.username }}</div>
+          <div class="email">{{ localUser.email }}</div>
         </div>
       </div>
-      <!-- 내 프로필 버튼 -->
       <div class="profile-actions">
         <button class="action-btn">내 프로필</button>
+        <button class="action-btn" @click="logout">로그아웃</button>
+        <button class="action-btn" @click="openDeleteModal">삭제</button>
       </div>
     </div>
 
     <!-- 하단 정보부 -->
     <div class="info-section">
-      <!-- 첫 번째 박스 -->
       <div class="info-box">
         <div class="info-item">
           <span class="label">id:</span>
-          <span class="label_value"></span>
+          <span class="label_value">{{ localUser.id }}</span>
         </div>
         <div class="info-item">
-          <div>
-            <span class="label">이메일:</span>
-            <span class="label_value">{{ user.email }}</span>
-          </div>
-          <div></div>
+          <span class="label">이메일:</span>
+          <span class="label_value">{{ localUser.email }}</span>
         </div>
         <div class="info-item">
-          <div>
-            <span class="label">유저네임:</span>
-            <input type="text" class="input-field" v-model="user.username" />
-          </div>
+          <span class="label">유저네임:</span>
+          <input type="text" class="input-field" v-model="localUser.username" />
           <CogIcon class="edit-icon" />
         </div>
         <div class="info-item">
-          <div>
-            <span class="label">비밀번호:</span>
-            <input
-              type="password"
-              placeholder="비밀번호 변경"
-              class="input-field"
-            />
-          </div>
+          <span class="label">비밀번호:</span>
+          <input
+            type="password"
+            placeholder="비밀번호 변경"
+            class="input-field"
+          />
           <CogIcon class="edit-icon" />
         </div>
       </div>
 
-      <!-- 두 번째 박스 -->
       <div class="info-box">
         <div class="info-item">
-          <div>
-            <span class="label">Post:</span>
-            <span class="label_value">{{ user.posts.length }}</span>
-          </div>
-          <div></div>
+          <span class="label">Post:</span>
+          <span class="label_value">{{ localUser.posts?.length || 0 }}</span>
         </div>
         <div class="info-item">
-          <div>
-            <span class="label">Friends:</span>
-            <span class="label_value">{{ user.friends.length }}</span>
-          </div>
-          <div></div>
+          <span class="label">Friends:</span>
+          <span class="label_value">{{ localUser.friends?.length || 0 }}</span>
         </div>
         <div class="info-item">
-          <div>
-            <span class="label">HashTag:</span>
-            <span class="label_value">{{ user.hashtags.length }}</span>
-          </div>
-          <div></div>
+          <span class="label">HashTag:</span>
+          <span class="label_value">{{ localUser.hashtags?.length || 0 }}</span>
         </div>
         <div class="info-item">
-          <div>
-            <span class="label">가입일자:</span>
-            <span class="label_value">{{ formatDate(user.createdAt) }}</span>
-          </div>
-          <div></div>
+          <span class="label">가입일자:</span>
+          <span class="label_value">{{ formatDate(localUser.createdAt) }}</span>
         </div>
       </div>
     </div>
+
+    <!-- 삭제 확인 모달 -->
+    <ConfirmDeleteModal
+      v-if="showDeleteModal"
+      :onConfirm="deleteAccount"
+      :onClose="closeModal"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { CogIcon } from "@heroicons/vue/24/outline"; // 연필 모양 아이콘 임포트
-import { user1 } from "@/data/dubbyModel"; // 더미 유저 데이터 가져오기
+import { defineComponent, ref, computed, watch } from "vue";
+import { useStore } from "vuex";
+import { CogIcon } from "@heroicons/vue/24/outline";
+import { logoutUser, deleteUser } from "@/utils/api";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
+import { useSessionCheck } from "@/hooks/useSessionCheck";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal.vue";
 
 export default defineComponent({
   name: "MyPage",
+  components: {
+    CogIcon,
+    ConfirmDeleteModal,
+  },
   setup() {
+    const store = useStore();
+    const router = useRouter();
+    const toast = useToast();
+    const showDeleteModal = ref(false);
+
+    // Vuex에서 현재 유저 정보 가져오기
+    const user = computed(() => store.getters["user/getUser"]);
+    const localUser = ref({ ...user.value });
+
+    // Vuex의 user 값이 변경되면 localUser 업데이트
+    watch(user, (newValue) => {
+      localUser.value = { ...newValue };
+    });
+
+    const logout = async () => {
+      const success = await logoutUser();
+      if (success) {
+        toast.success("로그아웃 성공!", { timeout: 2000 });
+        const { resetSessionCheck, checkSession } = useSessionCheck();
+        resetSessionCheck();
+        await checkSession();
+        await router.push("/login");
+        await store.dispatch("user/logout"); // 유저 정보 초기화
+      } else {
+        toast.error("로그아웃 실패. 다시 시도해주세요.", { timeout: 2000 });
+      }
+      // const storedUserData = store.getters["user/getUser"];
+      // console.log("스토어에 저장된 유저 데이터:", storedUserData);
+    };
+
     const formatDate = (date: Date) => {
       return new Date(date).toLocaleDateString();
     };
 
-    return {
-      user: user1,
-      formatDate,
+    const openDeleteModal = () => {
+      showDeleteModal.value = true;
     };
-  },
-  components: {
-    CogIcon,
+
+    const closeModal = () => {
+      showDeleteModal.value = false;
+    };
+
+    const deleteAccount = async () => {
+      if (localUser.value) {
+        const success = await deleteUser(localUser.value.id);
+        if (success) {
+          const { resetSessionCheck, checkSession } = useSessionCheck();
+          resetSessionCheck();
+          await checkSession();
+          await router.push("/login");
+          await store.dispatch("user/logout"); // 유저 정보 초기화
+        } else {
+          toast.error("계정 삭제 실패. 다시 시도해주세요.");
+        }
+      }
+    };
+    return {
+      user,
+      localUser,
+      formatDate,
+      logout,
+      openDeleteModal,
+      closeModal,
+      deleteAccount,
+      showDeleteModal,
+    };
   },
 });
 </script>

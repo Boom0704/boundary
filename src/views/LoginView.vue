@@ -23,8 +23,8 @@
       <!-- 이메일 입력 -->
       <input
         type="text"
-        v-model="email"
-        placeholder="이메일"
+        v-model="username"
+        placeholder="username"
         class="input-field"
       />
 
@@ -54,6 +54,7 @@ import { useRouter } from "vue-router";
 import SignUp from "@/components/SignUp.vue";
 import { useToast } from "vue-toastification";
 import { loginUser } from "@/utils/api";
+import { useSessionCheck } from "@/hooks/useSessionCheck";
 
 export default {
   name: "LoginView",
@@ -61,7 +62,7 @@ export default {
     SignUp,
   },
   setup() {
-    const email = ref("");
+    const username = ref("");
     const password = ref("");
     const errorMessage = ref("");
     const showSignUp = ref(false);
@@ -72,21 +73,24 @@ export default {
     const login = async () => {
       try {
         const response = await loginUser({
-          email: email.value,
+          username: username.value,
           password: password.value,
         });
 
-        // response가 false일 경우 처리
         if (response && response.status === 200) {
           toast.success("로그인 성공!", { timeout: 2000 });
           errorMessage.value = "";
-          router.push("/"); // 로그인 성공 시 홈으로 이동
+
+          const { checkSession, resetSessionCheck } = useSessionCheck();
+          resetSessionCheck(); // 로그인 후 세션 상태 초기화
+          await checkSession(); // 초기화 후 세션 체크
+          await router.replace("/"); // 세션 체크 완료 후 이동
         } else {
           throw new Error("Unexpected response status");
         }
-      } catch (error: any) {
-        // 오류 처리
-        if (error.response && error.response.status === 401) {
+      } catch (error: unknown) {
+        const err = error as any; // error를 any로 단언하여 속성 접근 가능
+        if (err.response && err.response.status === 401) {
           toast.error("아이디 또는 비밀번호가 잘못되었습니다.", {
             timeout: 2000,
           });
@@ -108,7 +112,7 @@ export default {
     window.addEventListener("resize", updateViewport);
 
     return {
-      email,
+      username,
       password,
       errorMessage,
       login,
@@ -116,7 +120,7 @@ export default {
       showSignUp,
       closeModal,
     };
-  },
+  }, // 여기 중괄호와 콤마 추가
 };
 </script>
 

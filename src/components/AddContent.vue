@@ -44,13 +44,13 @@ export default {
   },
   setup() {
     const store = useStore();
-    const contentText = computed(() => store.state.contentText);
-    const hashtags = computed(() => store.state.hashtags);
+    const contentText = computed(() => store.state.photo.contentText);
+    const hashtags = computed(() => store.state.photo.hashtags);
     const tagInput = ref("");
 
     const updateContentText = (event: Event) => {
       const text = (event.target as HTMLTextAreaElement).value;
-      store.commit("setContentText", text);
+      store.commit("photo/setContentText", text); // 'photo' 모듈 사용
     };
 
     const addTag = () => {
@@ -58,7 +58,10 @@ export default {
         tagInput.value.trim() !== "" &&
         !hashtags.value.includes(tagInput.value.trim())
       ) {
-        store.commit("setHashtags", [...hashtags.value, tagInput.value.trim()]);
+        store.commit("photo/setHashtags", [
+          ...hashtags.value,
+          tagInput.value.trim(),
+        ]); // 'photo' 모듈 사용
         tagInput.value = ""; // 태그 추가 후 입력 필드 초기화
       }
     };
@@ -66,7 +69,7 @@ export default {
     const removeTag = (index: number) => {
       const updatedTags = [...hashtags.value];
       updatedTags.splice(index, 1);
-      store.commit("setHashtags", updatedTags);
+      store.commit("photo/setHashtags", updatedTags); // 'photo' 모듈 사용
     };
 
     return {

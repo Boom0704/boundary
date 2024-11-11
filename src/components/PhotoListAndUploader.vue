@@ -60,8 +60,10 @@ export default {
   },
   setup() {
     const store = useStore();
-    const photos = computed(() => store.state.photos);
-    const currentPhotoIndex = computed(() => store.state.currentPhotoIndex);
+    const photos = computed(() => store.state.photo.photos); // 'photo' 네임스페이스로 변경
+    const currentPhotoIndex = computed(
+      () => store.state.photo.currentPhotoIndex
+    ); // 'photo' 네임스페이스로 변경
     const hoveredPhotoIndex = ref<number | null>(null);
 
     const handleFileUpload = (event: Event) => {
@@ -69,13 +71,13 @@ export default {
       if (input.files) {
         const files = Array.from(input.files);
         files.forEach((file) => {
-          store.commit("addPhoto", file);
+          store.commit("photo/addPhoto", file); // 'photo' 네임스페이스로 변경
         });
       }
     };
 
     const setCurrentPhoto = (index: number) => {
-      store.commit("setCurrentPhoto", index);
+      store.commit("photo/setCurrentPhoto", index); // 'photo' 네임스페이스로 변경
     };
 
     const getPhotoUrl = (photo: File | Blob) => {
@@ -84,7 +86,7 @@ export default {
 
     const confirmDelete = (index: number) => {
       if (confirm("사진을 삭제하시겠습니까?")) {
-        store.commit("deletePhoto", index);
+        store.commit("photo/deletePhoto", index); // 'photo' 네임스페이스로 변경
       }
     };
 

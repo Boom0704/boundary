@@ -1,45 +1,43 @@
-// 유저가 사용하는 해시태그 정보 (해시태그 이름과 사용 횟수)
-export interface IHashtag {
-  tag: string; // 해시태그 이름
-  count: number; // 해당 해시태그가 사용된 횟수
-}
-
-// 유저의 공개도 설정
 export enum ProfileVisibility {
-  FULL = "full",
-  PARTIAL = "partial",
-  CLOSED = "closed",
-  PRIVATE = "private",
+  FULL = "FULL",
+  PARTIAL = "PARTIAL",
+  PRIVATE = "PRIVATE",
 }
 
 export interface IUser {
-  id: string;
+  id: number;
   username: string;
+  password?: string; // Optional if not needed on the client-side
   email: string;
-  profilePictureUrl: string;
-  bio: string;
-  website?: string; // Optional
-  posts: IPost[]; // 사용자가 올린 게시글들
-  friends: IUser[]; // 유저의 팔로워들
-  hashtags: IHashtag[]; // 유저가 자주 사용하는 해시태그
-  gender: "male" | "female"; // 성별
-  birthday: string; // 생일 ("YYYY.MM.DD" 형식으로 저장)
-  visibility: ProfileVisibility; // 유저의 프로필 공개도
-  isActive: boolean; // 유저가 활성 상태인지 여부
+  profilePictureUrl?: string;
+  bio?: string;
+  website?: string;
+  visibility: ProfileVisibility;
+  isActive: boolean;
+  birthday: Date;
   createdAt: Date;
   updatedAt: Date;
+  friends: IUser[]; // Array of friends of type IUser
+  likedPosts: IPost[]; // Array of posts the user has liked
+  likedComments: IComment[]; // Array of comments the user has liked
+  gender: string; // New field for gender
 }
 
 export interface IPost {
-  id: string;
-  author: IUser; // 게시글 작성자
-  imageUrls: string[]; // 하나 이상의 이미지
-  caption: string; // 게시글 설명
-  comments: IComment[]; // 댓글 목록
-  likes: IUser[]; // 좋아요를 누른 사람들
-  tags: string[]; // 게시글 해시태그
-  createdAt: Date;
-  updatedAt: Date;
+  id?: number; // optional for new posts
+  authorId: number;
+  imageUrls: string[];
+  caption: string;
+  hashtags: string[];
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IHashtag {
+  id?: number;
+  name: string;
+  posts?: IPost[]; // Optional, depending on if you want to load posts associated with each hashtag
 }
 
 export interface IComment {

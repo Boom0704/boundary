@@ -1,9 +1,12 @@
 <template>
-  <div class="post-container">
+  <div v-if="post" class="post-container">
     <!-- 사진 파트 -->
     <div
       class="photo-section"
-      :style="{ backgroundImage: `url(${post.imageUrls[currentPhotoIndex]})` }"
+      :style="{
+        backgroundImage: `url(${post.imageUrls?.[currentPhotoIndex] || ''})`,
+      }"
+      v-if="post.imageUrls && post.imageUrls.length"
       @mouseover="showNavigation = true"
       @mouseleave="showNavigation = false"
       @touchstart="showNavigation = true"
@@ -17,9 +20,11 @@
           />
           <span class="user-name">{{ post.author.username }}</span>
         </div>
+        `
         <div class="photo-actions">
           <EllipsisHorizontalIcon class="action-btn info" @click="openModal" />
         </div>
+        `
 
         <!-- 모달 컴포넌트 -->
         <ActionModal :isVisible="isModalVisible" @close="closeModal" />
@@ -40,9 +45,9 @@
           :class="{ active: isLiked }"
           @click="toggleLike"
         />
-        {{ post.likes.length }}
+        {{ post.likes ? post.likes.length : 0 }}
         <ChatBubbleBottomCenterTextIcon class="chat-icon" @click="toggleChat" />
-        {{ post.comments.length }}
+        {{ post.comments ? post.comments.length : 0 }}
         <PaperAirplaneIcon class="share-icon" @click="toggleShare" />
       </div>
 
@@ -51,12 +56,12 @@
       </div>
 
       <div class="comments-summary">
-        댓글 {{ post.comments.length }}개
+        댓글 {{ post.comments ? post.comments.length : 0 }}개
         <span class="more-comments" @click="loadMoreComments">더보기</span>
       </div>
       <div class="comments-list">
         <div
-          v-for="comment in post.comments"
+          v-for="comment in post.comments || []"
           :key="comment.id"
           class="comment-item"
         >
@@ -427,8 +432,8 @@ $breakpoint-tablet: 1024px;
   }
 
   .photo-actions .action-btn.info {
-    width: 22px;
-    height: 22px;
+    width: 60px;
+    height: 60px;
   }
 
   .share-icon,
