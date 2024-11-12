@@ -13,19 +13,12 @@
     >
       <div class="photo-header">
         <div class="user-info">
-          <ProfileView
-            :username="post.author.username"
-            :size="80"
-            class="user-icon"
-          />
-          <span class="user-name">{{ post.author.username }}</span>
+          <ProfileView :username="post.author" :size="80" class="user-icon" />
+          <span class="user-name">{{ post.author }}</span>
         </div>
-        `
         <div class="photo-actions">
           <EllipsisHorizontalIcon class="action-btn info" @click="openModal" />
         </div>
-        `
-
         <!-- 모달 컴포넌트 -->
         <ActionModal :isVisible="isModalVisible" @close="closeModal" />
       </div>
@@ -45,9 +38,13 @@
           :class="{ active: isLiked }"
           @click="toggleLike"
         />
-        {{ post.likes ? post.likes.length : 0 }}
-        <ChatBubbleBottomCenterTextIcon class="chat-icon" @click="toggleChat" />
-        {{ post.comments ? post.comments.length : 0 }}
+        {{ localPost.likeCount }}
+        <!-- toggleChat 호출 시 post를 넘겨줍니다 -->
+        <ChatBubbleBottomCenterTextIcon
+          class="chat-icon"
+          @click="toggleChat(post)"
+        />
+        {{ commentCount }}
         <PaperAirplaneIcon class="share-icon" @click="toggleShare" />
       </div>
 
@@ -56,27 +53,30 @@
       </div>
 
       <div class="comments-summary">
-        댓글 {{ post.comments ? post.comments.length : 0 }}개
+        댓글 {{ commentCount }}개
         <span class="more-comments" @click="loadMoreComments">더보기</span>
       </div>
       <div class="comments-list">
         <div
-          v-for="comment in post.comments || []"
+          v-for="comment in localPost.comments || []"
           :key="comment.id"
           class="comment-item"
         >
-          <span class="comment-user">{{ comment.author.username }}:</span>
+          <span class="comment-user">{{ comment.author }}:</span>
           <span class="comment-text">{{ comment.content }}</span>
+          <span class="comment-time">{{ formatDate(comment.createdAt) }}</span>
         </div>
       </div>
 
       <div class="post-date-and-comment">
+        <!-- input에 id를 동적으로 설정 -->
         <input
           type="text"
           class="comment-input"
           placeholder="댓글을 입력하세요"
           v-model="commentInput"
           @keypress.enter="submitComment"
+          :id="'comment-input-' + post.id"
         />
         <ChatBubbleBottomCenterTextIcon
           v-if="isCommentNotEmpty"
@@ -93,6 +93,9 @@
 import { defineComponent, ref, PropType, watch } from "vue";
 import { IPost } from "@/interface/IModels";
 import ActionModal from "@/components/modal/ActionModal.vue";
+import { createComment, updateLikeStatus } from "@/utils/api";
+import { useStore } from "vuex"; // Vuex 스토어 사용
+import { useToast } from "vue-toastification";
 import {
   HeartIcon,
   ChatBubbleBottomCenterTextIcon,
@@ -110,12 +113,47 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const isLiked = ref(false);
+    const toast = useToast();
+    const store = useStore(); // Vuex 스토어 접근
+    const currentUser = store.state.user; // 현재 로그인된 유저 정보 가져오기
+    const isLiked = ref(false); // 좋아요 상태 (true/false)
+    const likeCount = ref(0); // 좋아요 수
     const isModalVisible = ref(false);
     const currentPhotoIndex = ref(0);
     const showNavigation = ref(false);
     const commentInput = ref("");
     const isCommentNotEmpty = ref(false);
+    const commentCount = ref(0);
+
+    const localPost = ref({
+      ...props.post, // props.post 값을 그대로 가져와 localPost에 저장
+      comments: [...(props.post.comments || [])], // comments 배열 복사
+      commentCount: props.post.activeCommentsCount || 0, // 댓글 수를 localPost에 포함
+    });
+
+    const loadLikeInfo = (post: any) => {
+      // likeCount와 likedByCurrentUser 초기화
+      likeCount.value = post.likeCount || 0; // `likeCount` 값을 받아와서 초기화
+      isLiked.value = post.likedByCurrentUser || false; // `likedByCurrentUser` 값을 받아와서 초기화
+    };
+
+    loadLikeInfo(localPost.value); // post의 likeCount와 likedByCurrentUser를 초기화
+
+    watch(likeCount, (newVal) => {
+      localStorage.setItem("likeCount", String(newVal)); // likeCount 값 업데이트
+    });
+
+    const loadCommentCount = (post: any) => {
+      // localPost에서 바로 값을 가져오고, localStorage의 값을 덮어쓰지 않음
+      commentCount.value = post.activeCommentsCount || 0;
+      console.log("Initial comment count:", commentCount.value); // 확인용 로그
+    };
+
+    loadCommentCount(localPost.value); // localPost의 activeCommentsCount 값을 초기화
+
+    watch(commentCount, (newVal) => {
+      localStorage.setItem("activeCommentsCount", String(newVal)); // activeCommentsCount 값 업데이트
+    });
 
     const loadMoreComments = () => {
       console.log("loadMoreComments");
@@ -125,10 +163,12 @@ export default defineComponent({
       console.log("쉐어클릭");
     };
 
-    const toggleChat = () => {
+    const toggleChat = (post: any) => {
       console.log("챗클릭");
+
+      // 해당 포스트의 댓글 입력 필드에 포커스를 주기 위해 id를 동적으로 지정
       const inputElement = document.querySelector(
-        ".comment-input"
+        `#comment-input-${post.id}`
       ) as HTMLInputElement;
 
       if (inputElement) {
@@ -137,9 +177,32 @@ export default defineComponent({
       }
     };
 
-    const toggleLike = () => {
-      isLiked.value = !isLiked.value;
-      console.log("하트 클릭");
+    const toggleLike = async () => {
+      try {
+        const response = await updateLikeStatus(
+          localPost.value.id,
+          currentUser.user.id,
+          !isLiked.value // 좋아요 상태를 반대로 변경
+        );
+
+        // 서버 응답에서 받은 값으로 상태 업데이트
+        likeCount.value = response.totalLikes; // 좋아요 수
+        isLiked.value = response.liked; // 좋아요 상태
+
+        // 화면 업데이트를 위한 상태 반영
+        localPost.value.likeCount = likeCount.value;
+        localPost.value.likedByCurrentUser = isLiked.value;
+
+        console.log("Like toggled:", isLiked.value ? "Liked" : "Unliked");
+
+        if (isLiked.value) {
+          toast.success("좋아요 추가!");
+        } else {
+          toast.info("좋아요 취소!");
+        }
+      } catch (error) {
+        console.error("Error toggling like:", error);
+      }
     };
 
     const openModal = () => {
@@ -152,13 +215,13 @@ export default defineComponent({
 
     const nextPhoto = () => {
       currentPhotoIndex.value =
-        (currentPhotoIndex.value + 1) % props.post.imageUrls.length;
+        (currentPhotoIndex.value + 1) % localPost.value.imageUrls.length;
     };
 
     const previousPhoto = () => {
       currentPhotoIndex.value =
-        (currentPhotoIndex.value - 1 + props.post.imageUrls.length) %
-        props.post.imageUrls.length;
+        (currentPhotoIndex.value - 1 + localPost.value.imageUrls.length) %
+        localPost.value.imageUrls.length;
     };
 
     const formatDate = (date: Date) => {
@@ -169,15 +232,48 @@ export default defineComponent({
       isCommentNotEmpty.value = newVal.trim().length > 0;
     });
 
-    const submitComment = () => {
-      if (isCommentNotEmpty.value) {
-        console.log("댓글: " + commentInput.value);
-        commentInput.value = ""; // 입력 필드 초기화
-        isCommentNotEmpty.value = false; // 버튼 비활성화
+    watch(commentCount, (newVal) => {
+      localStorage.setItem("activeCommentsCount", String(newVal)); // activeCommentsCount 값 업데이트
+    });
+
+    const submitComment = async () => {
+      if (
+        isCommentNotEmpty.value &&
+        currentUser &&
+        localPost.value &&
+        localPost.value.id !== undefined
+      ) {
+        try {
+          const commentData = {
+            authorId: currentUser.user.id,
+            postId: localPost.value.id,
+            content: commentInput.value,
+          };
+
+          const response = await createComment(commentData); // 댓글 생성
+
+          // 댓글 목록을 새로 받아서 업데이트
+          localPost.value.comments = response.comments;
+
+          // 댓글 수를 갱신 (commentCount 변경)
+          commentCount.value = response.activeCommentsCount;
+
+          // 입력 필드 초기화 및 버튼 비활성화
+          commentInput.value = "";
+          isCommentNotEmpty.value = false;
+
+          // 댓글 작성 완료 토스트 메시지 표시
+          toast.success("댓글 작성 완료!");
+        } catch (error) {
+          console.error("Error creating comment:", error);
+        }
+      } else {
+        console.error("Cannot submit comment: Missing user, post, or content");
       }
     };
 
     return {
+      localPost,
       currentPhotoIndex,
       showNavigation,
       nextPhoto,
@@ -194,6 +290,8 @@ export default defineComponent({
       commentInput,
       isCommentNotEmpty,
       loadMoreComments,
+      commentCount,
+      likeCount,
     };
   },
   components: {
@@ -388,6 +486,12 @@ $breakpoint-tablet: 1024px;
 
 .comment-text {
   margin-left: 5px;
+}
+
+.comment-time {
+  margin-left: 5px;
+  font-size: 0.6em; /* comment-text의 반절 크기 */
+  color: #aaa; /* 연한 회색 */
 }
 
 .post-date-and-comment {

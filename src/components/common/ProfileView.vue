@@ -20,6 +20,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { fetchUserProfileImage } from "@/utils/api";
 
 export default defineComponent({
   name: "ProfileView",
@@ -34,23 +35,19 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const profilePictureUrl = ref(""); // 빈 프로필 URL
+    const profilePictureUrl = ref(""); // 프로필 이미지 URL
     const showUsername = ref(false);
     const router = useRouter();
 
-    // 가짜 API 요청을 통해 프로필 사진 URL을 가져오는 메소드
-    const fetchProfilePicture = () => {
-      console.log(`Fetching profile picture for ${props.username}`);
-      // 테스트용 더미 URL을 반환
-      profilePictureUrl.value =
-        "https://i.namu.wiki/i/FTawFvlFB7P2h9VpxaDMM-G3p6Go158fUdf0V4wL4k7i1ZPSKndSWl-vEDBZecPOAFNXir7bZnbykltJGPXgsA.webp";
+    // 프로필 이미지 URL 가져오기
+    const fetchProfilePicture = async () => {
+      profilePictureUrl.value = await fetchUserProfileImage(props.username);
     };
 
     const goToProfile = () => {
       router.push(`/profile/${props.username}`);
     };
 
-    // 마우스 호버 이벤트로 username 표시
     const showUsernameOnHover = () => {
       showUsername.value = true;
     };
