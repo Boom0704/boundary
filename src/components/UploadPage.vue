@@ -47,6 +47,7 @@ export default {
           imageUrls: imageUrls,
           caption: contentText,
           hashtags: hashtags,
+          comments: [],
         };
 
         await createPost(postPayload);

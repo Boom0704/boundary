@@ -7,6 +7,7 @@
           :src="localUser.profilePictureUrl"
           alt="Profile Picture"
           class="profile-picture"
+          @click="openChangeModal"
         />
         <div class="profile-details">
           <div class="username">{{ localUser.username }}</div>
@@ -73,30 +74,40 @@
       :onConfirm="deleteAccount"
       :onClose="closeModal"
     />
+
+    <!-- 프로필 사진 변경 모달 -->
+    <ProfilePictureChangeModal
+      v-if="showChangeModal"
+      :onConfirm="changeProfilePicture"
+      :onClose="closeChangeModal"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { CogIcon } from "@heroicons/vue/24/outline";
-import { logoutUser, deleteUser } from "@/utils/api";
+import { deleteUser, logoutUser } from "@/utils/api";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { useSessionCheck } from "@/hooks/useSessionCheck";
-import ConfirmDeleteModal from "@/components/ConfirmDeleteModal.vue";
+import ConfirmDeleteModal from "@/components/modal/ConfirmDeleteModal.vue";
+import ProfilePictureChangeModal from "@/components/modal/ProfilePictureChangeModal.vue";
 
 export default defineComponent({
   name: "MyPage",
   components: {
     CogIcon,
     ConfirmDeleteModal,
+    ProfilePictureChangeModal,
   },
   setup() {
     const store = useStore();
     const router = useRouter();
     const toast = useToast();
     const showDeleteModal = ref(false);
+    const showChangeModal = ref(false);
 
     // Vuex에서 현재 유저 정보 가져오기
     const user = computed(() => store.getters["user/getUser"]);
@@ -119,8 +130,6 @@ export default defineComponent({
       } else {
         toast.error("로그아웃 실패. 다시 시도해주세요.", { timeout: 2000 });
       }
-      // const storedUserData = store.getters["user/getUser"];
-      // console.log("스토어에 저장된 유저 데이터:", storedUserData);
     };
 
     const formatDate = (date: Date) => {
@@ -133,6 +142,14 @@ export default defineComponent({
 
     const closeModal = () => {
       showDeleteModal.value = false;
+    };
+
+    const openChangeModal = () => {
+      showChangeModal.value = true;
+    };
+
+    const closeChangeModal = () => {
+      showChangeModal.value = false;
     };
 
     const deleteAccount = async () => {
@@ -149,6 +166,19 @@ export default defineComponent({
         }
       }
     };
+
+    const changeProfilePicture = async (file: File) => {
+      const isSuccess = await store.dispatch("user/updateProfilePicture", file);
+      if (isSuccess) {
+        // Directly update the local profile picture to reflect the new one
+        console.log(isSuccess + "is");
+        const updatedUser = store.getters["user/getUser"];
+        console.log(updatedUser);
+        localUser.value.profilePictureUrl = updatedUser.profilePictureUrl;
+      }
+      return isSuccess;
+    };
+
     return {
       user,
       localUser,
@@ -158,6 +188,10 @@ export default defineComponent({
       closeModal,
       deleteAccount,
       showDeleteModal,
+      showChangeModal,
+      openChangeModal,
+      closeChangeModal,
+      changeProfilePicture,
     };
   },
 });

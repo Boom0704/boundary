@@ -131,6 +131,21 @@ export const uploadMultipleFiles = async (files: File[]): Promise<string[]> => {
   }
 };
 
+export const uploadSingleFile = async (file: File): Promise<string | null> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await api.post("/common/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data; // 파일 URL 반환
+  } catch (error) {
+    console.error("파일 업로드 실패:", error);
+    return null;
+  }
+};
+
 export const createPost = async (postPayload: IPost) => {
   try {
     console.log("postPayload: ", postPayload);
@@ -146,6 +161,7 @@ export const createPost = async (postPayload: IPost) => {
 export const fetchActivePosts = async () => {
   try {
     const response = await api.get("/posts/active");
+
     return response.data; // 게시물 데이터 반환
   } catch (error) {
     console.error("Error fetching active posts:", error);
@@ -153,4 +169,80 @@ export const fetchActivePosts = async () => {
   }
 };
 
+export const fetchUserProfileImage = async (username: string) => {
+  try {
+    const response = await axios.get(`/users/${username}/profile-image`);
+    return response.data; // 이미지 URL 반환
+  } catch (error) {
+    console.error("Failed to fetch profile picture:", error);
+    // 기본 이미지 URL을 반환하도록 처리
+    return "https://cdn-icons-png.flaticon.com/512/5741/5741333.png";
+  }
+};
+
+export const updateUserProfilePicture = async (
+  userId: string,
+  file: File
+): Promise<boolean> => {
+  try {
+    // Step 1: 이미지 파일 업로드 및 URL 반환
+    const profilePictureUrl = await uploadSingleFile(file);
+    if (!profilePictureUrl) {
+      console.error("프로필 이미지 업로드에 실패했습니다.");
+      return false;
+    }
+
+    // Step 2: 유저 정보 업데이트 요청
+    const updateData = {
+      profilePictureUrl,
+      username: store.getters["user/getUser"].username,
+    };
+
+    const response = await api.put(`/users/${userId}/update`, updateData);
+    if (response.status === 200) {
+      // Step 3: 성공적으로 Vuex 스토어와 localStorage 업데이트
+      localStorage.setItem("profilePictureUrl", profilePictureUrl);
+      store.commit("user/setProfilePicture", profilePictureUrl); // Vuex 상태 업데이트
+
+      return true;
+    } else {
+      console.error("유저 정보 업데이트 실패");
+      return false;
+    }
+  } catch (error) {
+    console.error("프로필 업데이트 중 오류 발생:", error);
+    return false;
+  }
+};
+
+export const createComment = async (commentData: {
+  authorId: number;
+  postId: number;
+  content: string;
+}) => {
+  try {
+    const response = await api.post("/comments", commentData);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to create comment:", error);
+    throw error;
+  }
+};
+
+// 포스트에 대한 좋아요 상태 변경
+export const updateLikeStatus = async (postId: number, userId: number) => {
+  try {
+    // 서버로 좋아요 상태 변경 요청
+    const response = await api.post(`/posts/${postId}/like`, null, {
+      params: { userId }, // userId를 쿼리 파라미터로 전달
+    });
+
+    // 서버에서 반환된 데이터 (예시)
+    // { likeCount: number, likedByCurrentUser: boolean }
+    return response.data;
+  } catch (error) {
+    console.error("Error updating like status:", error);
+    throw error; // 에러를 다시 던져서 호출한 곳에서 처리하게 함
+  }
+};
 export default api;

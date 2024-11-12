@@ -29,9 +29,13 @@ export interface IPost {
   imageUrls: string[];
   caption: string;
   hashtags: string[];
+  comments: IComment[]; // Added comments field
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  activeCommentsCount?: number;
+  likeCount?: number;
+  likedByCurrentUser?: boolean;
 }
 
 export interface IHashtag {
@@ -43,7 +47,7 @@ export interface IHashtag {
 export interface IComment {
   id: string;
   postId: string; // 댓글이 달린 게시글 ID
-  author: IUser; // 댓글 작성자
+  author: string; // Adjust based on your User model structure
   content: string; // 댓글 내용
   likes: IUser[]; // 댓글에 좋아요를 누른 사람들
   createdAt: Date;
