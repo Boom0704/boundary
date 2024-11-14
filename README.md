@@ -1,4 +1,4 @@
-# https://github.com/Boom0704/boundaryBack
+# https://github.com/Boom0704/2024_boundaryBack
 
 ## 이 프로젝트는 위 백엔드와 함께 사용되기 위에 만들었습니다.
 [![YouTube 동영상](https://img.youtube.com/vi/KheWi8w9JBU/0.jpg)](https://www.youtube.com/watch?v=KheWi8w9JBU)
