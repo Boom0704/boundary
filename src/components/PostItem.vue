@@ -20,7 +20,12 @@
           <EllipsisHorizontalIcon class="action-btn info" @click="openModal" />
         </div>
         <!-- 모달 컴포넌트 -->
-        <ActionModal :isVisible="isModalVisible" @close="closeModal" />
+        <ActionModal
+          :isVisible="isModalVisible"
+          @close="closeModal"
+          :postId="post.id"
+          :authorName="post.author"
+        />
       </div>
 
       <!-- 좌우 클릭 영역: showNavigation이 true일 때만 표시 -->
@@ -68,6 +73,15 @@
         </div>
       </div>
 
+      <div class="tag-list">
+        <div
+          v-for="(tag, index) in post.hashtags"
+          :key="index"
+          class="tag-item"
+        >
+          #{{ tag }}
+        </div>
+      </div>
       <div class="post-date-and-comment">
         <!-- input에 id를 동적으로 설정 -->
         <input
@@ -103,6 +117,7 @@ import {
   EllipsisHorizontalIcon,
 } from "@heroicons/vue/24/outline";
 import ProfileView from "@/components/common/ProfileView.vue";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "PostItem",
@@ -113,6 +128,7 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const router = useRouter();
     const toast = useToast();
     const store = useStore(); // Vuex 스토어 접근
     const currentUser = store.state.user; // 현재 로그인된 유저 정보 가져오기
@@ -132,12 +148,10 @@ export default defineComponent({
     });
 
     const loadLikeInfo = (post: any) => {
-      // likeCount와 likedByCurrentUser 초기화
       likeCount.value = post.likeCount || 0; // `likeCount` 값을 받아와서 초기화
       isLiked.value = post.likedByCurrentUser || false; // `likedByCurrentUser` 값을 받아와서 초기화
     };
-
-    loadLikeInfo(localPost.value); // post의 likeCount와 likedByCurrentUser를 초기화
+    loadLikeInfo(localPost.value);
 
     watch(likeCount, (newVal) => {
       localStorage.setItem("likeCount", String(newVal)); // likeCount 값 업데이트
@@ -156,7 +170,9 @@ export default defineComponent({
     });
 
     const loadMoreComments = () => {
-      console.log("loadMoreComments");
+      toast.success("게시물 상세보기"); // 성공 시 토스트 메시지 띄우기
+      const fullLink = `/detail/${props.post.id}`; // postId를 props에서 가져오기
+      router.push(fullLink); // Vue Router로 이동
     };
 
     const toggleShare = () => {
@@ -179,17 +195,21 @@ export default defineComponent({
 
     const toggleLike = async () => {
       try {
+        if (localPost.value.id === undefined) {
+          // 포스트 ID가 undefined인 경우 처리
+          toast.error("포스트 ID가 없습니다.");
+          return;
+        }
+
         const response = await updateLikeStatus(
-          localPost.value.id,
-          currentUser.user.id,
-          !isLiked.value // 좋아요 상태를 반대로 변경
+          localPost.value.id, // 유효한 number 값을 전달
+          currentUser.user.id
         );
 
-        // 서버 응답에서 받은 값으로 상태 업데이트
-        likeCount.value = response.totalLikes; // 좋아요 수
-        isLiked.value = response.liked; // 좋아요 상태
+        // 좋아요 수와 상태 업데이트
+        likeCount.value = response.totalLikes;
+        isLiked.value = response.liked;
 
-        // 화면 업데이트를 위한 상태 반영
         localPost.value.likeCount = likeCount.value;
         localPost.value.likedByCurrentUser = isLiked.value;
 
@@ -225,7 +245,13 @@ export default defineComponent({
     };
 
     const formatDate = (date: Date) => {
-      return new Date(date).toLocaleDateString();
+      return new Date(date).toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     };
 
     watch(commentInput, (newVal) => {
@@ -499,7 +525,7 @@ $breakpoint-tablet: 1024px;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .comment-input {
@@ -527,6 +553,24 @@ $breakpoint-tablet: 1024px;
   margin-left: auto;
   font-size: 12px;
   color: gray;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.tag-item {
+  padding: 2px 4px;
+  background-color: white;
+  border: 2px solid #9dbd9d; /* 1px 두께의 초록색 선 */
+  color: #7c7b7b;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  font-weight: bolder;
 }
 
 /* 태블릿 대응 */

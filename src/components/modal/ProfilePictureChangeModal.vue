@@ -15,6 +15,7 @@
       </div>
       <input
         type="file"
+        ref="fileInput"
         @change="onFileChange"
         accept="image/*"
         class="file-input"
@@ -61,21 +62,24 @@ export default defineComponent({
       if (file) {
         selectedFile.value = file;
         previewImage.value = URL.createObjectURL(file);
+      } else {
+        toast.error("파일을 선택하세요.");
       }
     };
 
     const selectFile = () => {
-      document.querySelector(".file-input")?.click();
+      const fileInputElement = document.querySelector(
+        ".file-input"
+      ) as HTMLInputElement;
+      fileInputElement?.click(); // 클릭 이벤트 실행
     };
 
     const confirmChange = async () => {
       if (selectedFile.value) {
         const isSuccess = await props.onConfirm(selectedFile.value);
         if (isSuccess) {
-          // 성공 시 성공 토스트 한 번만 표시
           toast.success("프로필 사진이 성공적으로 업데이트되었습니다.");
         } else {
-          // 실패 시 실패 토스트 한 번만 표시
           toast.error(
             "프로필 사진 업데이트에 실패했습니다. 다시 시도해 주세요."
           );

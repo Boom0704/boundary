@@ -112,6 +112,17 @@ export const fetchUserData = async (userId: number) => {
   }
 };
 
+// 유저 정보를 가져오는 API 함수
+export const fetchUserDetailData = async (username: string) => {
+  try {
+    const response = await api.get(`/users/detail/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error("유저 정보 가져오기 실패:", error);
+    return null;
+  }
+};
+
 export const uploadMultipleFiles = async (files: File[]): Promise<string[]> => {
   const formData = new FormData();
   files.forEach((file) => {
@@ -229,6 +240,20 @@ export const createComment = async (commentData: {
   }
 };
 
+export const createCommentDetail = async (commentData: {
+  authorId: number;
+  postId: number;
+  content: string;
+}) => {
+  try {
+    const response = await api.post("/comments/detail", commentData);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to create comment:", error);
+    throw error;
+  }
+};
+
 // 포스트에 대한 좋아요 상태 변경
 export const updateLikeStatus = async (postId: number, userId: number) => {
   try {
@@ -243,6 +268,128 @@ export const updateLikeStatus = async (postId: number, userId: number) => {
   } catch (error) {
     console.error("Error updating like status:", error);
     throw error; // 에러를 다시 던져서 호출한 곳에서 처리하게 함
+  }
+};
+
+export const getPostById = async (id: number) => {
+  try {
+    const response = await api.get(`/posts/${id}`); // API 요청
+    return response.data; // 응답 데이터 반환
+  } catch (error) {
+    console.error("게시글을 가져오는 데 실패했습니다.", error);
+    throw error; // 에러를 던져서 호출한 곳에서 처리하도록 함
+  }
+};
+
+export const updateUserInfo = async (userId: number, updateData: any) => {
+  try {
+    // 비밀번호를 제외한 데이터를 백엔드에 전송
+    const { password, ...dataToUpdate } = updateData; // 비밀번호를 제외하고 나머지 값만 보냄
+    const response = await api.put(`/users/${userId}/update`, dataToUpdate);
+
+    if (response.status === 200) {
+      return true; // 성공 시
+    } else {
+      console.error("유저 정보 업데이트 실패");
+      return false;
+    }
+  } catch (error) {
+    console.error("프로필 업데이트 중 오류 발생:", error);
+    return false;
+  }
+};
+
+// 친구 요청 생성
+export const sendFriendRequest = async (
+  senderUsername: string,
+  receiverUsername: string
+) => {
+  try {
+    const response = await api.post("/friend-requests/send", null, {
+      params: { senderUsername, receiverUsername },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("친구 요청 보내기 실패:", error);
+    throw error;
+  }
+};
+
+// 친구 요청 수락 또는 거절
+export const answerFriendRequest = async (
+  requestId: number,
+  status: "ACCEPTED" | "REJECTED"
+) => {
+  try {
+    const response = await api.post(
+      `/friend-requests/${requestId}/answer`,
+      null,
+      {
+        params: { status },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("친구 요청 응답 실패:", error);
+    throw error;
+  }
+};
+
+// 받은 친구 요청 확인
+export const getReceivedFriendRequests = async (username: string) => {
+  try {
+    const response = await api.get("/friend-requests/received", {
+      params: { username },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("받은 친구 요청 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 보낸 친구 요청 확인
+export const getSentFriendRequests = async (username: string) => {
+  try {
+    const response = await api.get("/friend-requests/sent", {
+      params: { username },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("보낸 친구 요청 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 상태별 받은 친구 요청 확인
+export const getReceivedFriendRequestsByStatus = async (
+  username: string,
+  status: "PENDING" | "ACCEPTED" | "REJECTED"
+) => {
+  try {
+    const response = await api.get("/friend-requests/received/status", {
+      params: { username, status },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("상태별 받은 친구 요청 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 상태별 보낸 친구 요청 확인
+export const getSentFriendRequestsByStatus = async (
+  username: string,
+  status: "PENDING" | "ACCEPTED" | "REJECTED"
+) => {
+  try {
+    const response = await api.get("/friend-requests/sent/status", {
+      params: { username, status },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("상태별 보낸 친구 요청 조회 실패:", error);
+    throw error;
   }
 };
 export default api;

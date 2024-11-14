@@ -20,12 +20,21 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useToast } from "vue-toastification"; // vue-toastification 임포트
 
 export default defineComponent({
   name: "ActionModal",
   props: {
     isVisible: {
       type: Boolean,
+      required: true,
+    },
+    postId: {
+      type: Number,
+      required: true,
+    },
+    authorName: {
+      type: String,
       required: true,
     },
   },
@@ -35,15 +44,10 @@ export default defineComponent({
       this.$emit("close");
     },
     handleItemClick(item: string) {
+      console.log(`${item} 버튼 클릭됨`); // 클릭된 버튼 확인
       switch (item) {
-        case "신고":
-          this.reportAction();
-          break;
         case "보기":
           this.viewAction();
-          break;
-        case "공유":
-          this.shareAction();
           break;
         case "링크복사":
           this.copyLinkAction();
@@ -58,26 +62,49 @@ export default defineComponent({
           break;
       }
     },
-    reportAction() {
-      console.log("신고 버튼 눌림");
-    },
     viewAction() {
-      console.log("보기 버튼 눌림");
-    },
-    shareAction() {
-      console.log("공유 버튼 눌림");
+      this.toast.success("게시물로 이동!"); // 성공 시 토스트 메시지 띄우기
+      const fullLink = `/detail/${this.postId}`;
+      this.$router.push(fullLink).finally(() => {
+        this.closeModal();
+      });
     },
     copyLinkAction() {
-      console.log("링크복사 버튼 눌림");
+      const fullLink = `${process.env.VUE_APP_BASE_URL}/detail/${this.postId}`;
+
+      // 클립보드에 링크 복사
+      navigator.clipboard
+        .writeText(fullLink)
+        .then(() => {
+          this.toast.success("링크복사 완료!"); // 성공 시 토스트 메시지 띄우기
+        })
+        .catch((err) => {
+          console.error("링크 복사 실패", err);
+          this.toast.error("링크 복사 실패!"); // 실패 시 토스트 메시지 띄우기
+        })
+        .finally(() => {
+          // 추가적인 작업이 필요하면 이곳에 작성
+          this.closeModal();
+          console.log("클립보드 복사 작업 완료");
+        });
     },
     accountInfoAction() {
-      console.log("계정정보 버튼 눌림");
+      this.toast.success(`${this.authorName}의 페이지로 이동!`); // 성공 시 토스트 메시지 띄우기
+      const profileLink = `/profile/${this.authorName}`;
+      this.$router.push(profileLink).finally(() => {
+        this.closeModal();
+      });
     },
   },
   data() {
     return {
-      modalItems: ["신고", "보기", "공유", "링크복사", "계정정보", "취소"],
+      modalItems: ["보기", "링크복사", "계정정보", "취소"],
     };
+  },
+  setup() {
+    // vue-toastification의 useToast 훅을 사용하여 toast 메서드를 가져옵니다.
+    const toast = useToast();
+    return { toast };
   },
 });
 </script>
@@ -146,5 +173,18 @@ export default defineComponent({
 
 .close-btn:hover {
   background-color: #e53935;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  z-index: 1000;
 }
 </style>

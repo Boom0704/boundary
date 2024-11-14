@@ -4,9 +4,9 @@ export const ROUTES = {
     name: "home",
     path: "/",
   },
-  ABOUT: {
-    name: "about",
-    path: "/about",
+  REQUEST: {
+    name: "request",
+    path: "/request",
   },
   MYPAGE: {
     name: "myPage",
@@ -18,7 +18,7 @@ export const ROUTES = {
   },
   PROFILE: {
     name: "profile",
-    path: "/profile/:id",
+    path: "/profile/:username",
   },
   LOGIN: {
     name: "login",
