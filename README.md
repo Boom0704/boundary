@@ -1,7 +1,7 @@
 # https://github.com/Boom0704/boundaryBack
 
 ## 이 프로젝트는 위 백엔드와 함께 사용되기 위에 만들었습니다.
-
+[![YouTube 동영상](https://img.youtube.com/vi/KheWi8w9JBU/0.jpg)](https://www.youtube.com/watch?v=KheWi8w9JBU)
 # Boundary
 
 이 프로젝트는 Vue.js를 사용하여 개발된 소셜 네트워크 플랫폼의 프론트엔드입니다. 이 프로젝트는 Spring Boot 백엔드와 통신하며 사용자에게 다양한 기능을 제공합니다.
