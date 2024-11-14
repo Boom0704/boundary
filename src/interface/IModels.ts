@@ -4,6 +4,8 @@ export enum ProfileVisibility {
   PRIVATE = "PRIVATE",
 }
 
+export type ProfileVisibilityType = ProfileVisibility | null;
+
 export interface IUser {
   id: number;
   username: string;
@@ -52,4 +54,12 @@ export interface IComment {
   likes: IUser[]; // 댓글에 좋아요를 누른 사람들
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IFriendRequest {
+  id: number; // 친구 요청 ID
+  sender: IUser; // 친구 요청을 보낸 사용자
+  receiver: IUser; // 친구 요청을 받은 사용자
+  status: "PENDING" | "ACCEPTED" | "REJECTED"; // 요청 상태 (대기중, 수락됨, 거절됨)
+  sentAt: Date; // 요청이 보낸 시간
 }

@@ -13,10 +13,10 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true }, // 인증이 필요한 페이지
   },
   {
-    path: ROUTES.ABOUT.path,
-    name: ROUTES.ABOUT.name,
+    path: ROUTES.REQUEST.path,
+    name: ROUTES.REQUEST.name,
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+      import(/* webpackChunkName: "request" */ "../views/RequestView.vue"),
   },
   {
     path: ROUTES.MYPAGE.path,

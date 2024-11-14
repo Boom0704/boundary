@@ -15,9 +15,10 @@
         </div>
       </div>
       <div class="profile-actions">
-        <button class="action-btn">내 프로필</button>
+        <button class="action-btn" @click="goToProfile">내 프로필</button>
         <button class="action-btn" @click="logout">로그아웃</button>
         <button class="action-btn" @click="openDeleteModal">삭제</button>
+        <button class="action-btn" @click="openFriendsModal">친구요청</button>
       </div>
     </div>
 
@@ -25,17 +26,53 @@
     <div class="info-section">
       <div class="info-box">
         <div class="info-item">
-          <span class="label">id:</span>
-          <span class="label_value">{{ localUser.id }}</span>
+          <span class="label">유저네임:</span>
+          <span class="label_value">{{ localUser.username }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">생일:</span>
+          <span class="label_value">{{ localUser.birthday }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">웹사이트:</span>
+          <input type="text" class="input-field" v-model="localUser.website" />
+          <CogIcon @click="updateUser" class="edit-icon" />
         </div>
         <div class="info-item">
           <span class="label">이메일:</span>
-          <span class="label_value">{{ localUser.email }}</span>
+          <input type="text" class="input-field" v-model="localUser.email" />
+          <CogIcon @click="updateUser" class="edit-icon" />
         </div>
         <div class="info-item">
-          <span class="label">유저네임:</span>
-          <input type="text" class="input-field" v-model="localUser.username" />
-          <CogIcon class="edit-icon" />
+          <span class="label">한줄설명:</span>
+          <input type="text" class="input-field" v-model="localUser.bio" />
+          <CogIcon @click="updateUser" class="edit-icon" />
+        </div>
+        <div class="info-item">
+          <span class="label">공개도:</span>
+          <div class="visibility-options">
+            <label>
+              <input type="radio" value="FULL" v-model="localUser.visibility" />
+              전체 공개
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="PARTIAL"
+                v-model="localUser.visibility"
+              />
+              부분 공개
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="PRIVATE"
+                v-model="localUser.visibility"
+              />
+              비공개
+            </label>
+          </div>
+          <CogIcon @click="updateUser" class="edit-icon" />
         </div>
         <div class="info-item">
           <span class="label">비밀번호:</span>
@@ -51,15 +88,15 @@
       <div class="info-box">
         <div class="info-item">
           <span class="label">Post:</span>
-          <span class="label_value">{{ localUser.posts?.length || 0 }}</span>
+          <span class="label_value">{{ getPostCount() }}</span>
         </div>
         <div class="info-item">
           <span class="label">Friends:</span>
-          <span class="label_value">{{ localUser.friends?.length || 0 }}</span>
+          <span class="label_value">{{ getFriendsCount() }}</span>
         </div>
         <div class="info-item">
           <span class="label">HashTag:</span>
-          <span class="label_value">{{ localUser.hashtags?.length || 0 }}</span>
+          <span class="label_value">{{ getHashtagCount() }}</span>
         </div>
         <div class="info-item">
           <span class="label">가입일자:</span>
@@ -74,30 +111,41 @@
       :onConfirm="deleteAccount"
       :onClose="closeModal"
     />
-
     <!-- 프로필 사진 변경 모달 -->
     <ProfilePictureChangeModal
       v-if="showChangeModal"
       :onConfirm="changeProfilePicture"
       :onClose="closeChangeModal"
     />
+    <FriendsModal
+      v-if="showFriendsModal"
+      :username="localUser.username"
+      @close="closeFriendsModal"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch, onMounted } from "vue";
 import { useStore } from "vuex";
 import { CogIcon } from "@heroicons/vue/24/outline";
-import { deleteUser, logoutUser } from "@/utils/api";
+import {
+  deleteUser,
+  logoutUser,
+  fetchUserDetailData,
+  updateUserInfo,
+} from "@/utils/api";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { useSessionCheck } from "@/hooks/useSessionCheck";
 import ConfirmDeleteModal from "@/components/modal/ConfirmDeleteModal.vue";
 import ProfilePictureChangeModal from "@/components/modal/ProfilePictureChangeModal.vue";
+import FriendsModal from "@/components/modal/FriendsModal.vue";
 
 export default defineComponent({
   name: "MyPage",
   components: {
+    FriendsModal,
     CogIcon,
     ConfirmDeleteModal,
     ProfilePictureChangeModal,
@@ -108,15 +156,61 @@ export default defineComponent({
     const toast = useToast();
     const showDeleteModal = ref(false);
     const showChangeModal = ref(false);
+    const showFriendsModal = ref(false);
 
     // Vuex에서 현재 유저 정보 가져오기
     const user = computed(() => store.getters["user/getUser"]);
     const localUser = ref({ ...user.value });
+    const localUserDetail = ref();
 
-    // Vuex의 user 값이 변경되면 localUser 업데이트
+    const updateUser = async () => {
+      const updateData = {
+        website: localUser.value.website,
+        email: localUser.value.email,
+        bio: localUser.value.bio,
+        visibility: localUser.value.visibility,
+      };
+
+      try {
+        const success = await updateUserInfo(localUser.value.id, updateData);
+        if (success) {
+          toast.success("정보가 성공적으로 업데이트되었습니다!");
+        } else {
+          toast.error("정보 업데이트에 실패했습니다.");
+        }
+      } catch (error) {
+        toast.error("프로필 업데이트 중 오류가 발생했습니다.");
+      }
+    };
+
+    onMounted(() => {
+      const loadUserData = async () => {
+        const userData = await fetchUserDetailData(user.value.username);
+        if (userData) {
+          localUserDetail.value = userData;
+          console.log(localUserDetail.value);
+        } else {
+          toast.error("유저 정보를 가져오는 데 실패했습니다.");
+        }
+      };
+      loadUserData();
+    });
+
     watch(user, (newValue) => {
       localUser.value = { ...newValue };
     });
+
+    const getPostCount = () => {
+      return localUserDetail.value?.cleanedPosts?.length || 0;
+    };
+
+    const getFriendsCount = () => {
+      return localUserDetail.value?.friends?.length || 0;
+    };
+
+    const getHashtagCount = () => {
+      return Object.keys(localUserDetail.value?.hashtagCount || {}).length;
+    };
 
     const logout = async () => {
       const success = await logoutUser();
@@ -136,12 +230,29 @@ export default defineComponent({
       return new Date(date).toLocaleDateString();
     };
 
+    const goToProfile = () => {
+      toast.success(`${localUser.value.username} 프로필로 이동!`, {
+        timeout: 2000,
+      });
+      router.push(`/profile/${localUser.value.username}`);
+    };
+
     const openDeleteModal = () => {
       showDeleteModal.value = true;
     };
 
     const closeModal = () => {
       showDeleteModal.value = false;
+    };
+
+    const openFriendsModal = () => {
+      console.log("친구 요청 모달 열기");
+      showFriendsModal.value = true; // 친구 요청 모달을 true로 설정
+      console.log("showFriendsModal:", showFriendsModal.value); // 상태 출력
+    };
+
+    const closeFriendsModal = () => {
+      showFriendsModal.value = false;
     };
 
     const openChangeModal = () => {
@@ -185,13 +296,21 @@ export default defineComponent({
       formatDate,
       logout,
       openDeleteModal,
+      openFriendsModal,
+      closeFriendsModal,
       closeModal,
       deleteAccount,
       showDeleteModal,
       showChangeModal,
+      showFriendsModal,
       openChangeModal,
       closeChangeModal,
       changeProfilePicture,
+      goToProfile,
+      getHashtagCount,
+      getPostCount,
+      getFriendsCount,
+      updateUser,
     };
   },
 });

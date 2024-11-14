@@ -1,7 +1,7 @@
 <template>
   <div class="hashtag-container" :style="{ backgroundColor: computedColor }">
     <span class="hashtag-text">
-      <span class="hashtag-symbol">#</span>{{ tag.slice(1) }}
+      <span class="hashtag-symbol">#</span>{{ tag }}
     </span>
     <span class="hashtag-count">({{ count }})</span>
   </div>
@@ -52,7 +52,7 @@ export default defineComponent({
 
     const computedFontSize = computed(() => {
       const length = props.tag.length;
-      const maxFontSize = 60 / props.line;
+      const maxFontSize = 50 / props.line;
       const minFontSize = 3;
       return `${Math.max(maxFontSize / length, minFontSize)}vw`;
     });
@@ -61,10 +61,21 @@ export default defineComponent({
       return `${12 / props.line}vw`;
     });
 
+    const computedFontFront = computed(() => {
+      const length = props.tag.length;
+      const maxFontSize = 50 / props.line;
+      const minFontSize = 3;
+      return `${Math.min(
+        Math.max(maxFontSize / length, minFontSize),
+        30 / props.line
+      )}vw`;
+    });
+
     return {
       computedColor,
       computedFontSize,
       computedFontFoot,
+      computedFontFront,
     };
   },
 });
@@ -99,6 +110,10 @@ export default defineComponent({
 }
 
 .hashtag-symbol {
+  display: inline-flex; /* Inline flexbox로 설정 */
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
+  font-size: v-bind(computedFontFront); /* 글자 크기 조정 */
   opacity: 0.8; /* # 기호만 50% 투명도 */
 }
 

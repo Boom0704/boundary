@@ -51,6 +51,7 @@ import {
   LinkIcon,
   UserIcon,
   PlusCircleIcon,
+  QueueListIcon,
 } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
@@ -60,6 +61,7 @@ export default defineComponent({
     LinkIcon,
     UserIcon,
     PlusCircleIcon,
+    QueueListIcon,
   },
   setup() {
     const isTablet = ref(false);
@@ -75,15 +77,15 @@ export default defineComponent({
     const routes = [
       { path: ROUTES.HOME.path, name: ROUTES.HOME.name, icon: HomeIcon },
       {
-        path: ROUTES.ABOUT.path,
-        name: ROUTES.ABOUT.name,
-        icon: LinkIcon,
+        path: ROUTES.REQUEST.path,
+        name: ROUTES.REQUEST.name,
+        icon: QueueListIcon,
       },
-      {
-        path: ROUTES.CONNECTION.path,
-        name: ROUTES.CONNECTION.name,
-        icon: LinkIcon,
-      },
+      // {
+      //   path: ROUTES.CONNECTION.path,
+      //   name: ROUTES.CONNECTION.name,
+      //   icon: LinkIcon,
+      // },
       {
         path: ROUTES.ADDPAGE.path,
         name: ROUTES.ADDPAGE.name,
